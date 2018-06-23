@@ -1,0 +1,25 @@
+type Movie {
+  id: Int!
+  name: String!
+  score: Int!
+}
+
+type Query {
+  movies: [Movie]!
+  movie(id: Int!): Movie
+  moviesByApi(limit: Int, rating: Float): [MovieByApi]!
+}
+
+type Mutation {
+  addMovie(name: String!, score: Int!): Movie!
+  deleteMovie(id: Int!): Boolean!
+}
+
+type MovieByApi {
+  id: Int!
+  title: String!
+  rating: Float!
+  summary: String!
+  language: String!
+  medium_cover_image: String!
+}
