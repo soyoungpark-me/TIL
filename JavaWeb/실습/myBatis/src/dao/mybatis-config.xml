@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>  
+  <settings>
+  	<setting name="logImpl" value="LOG4J"/>
+  </settings>
+  <typeAliases>
+    <typeAlias type="vo.Project" alias="project"/>
+    <typeAlias type="vo.User" alias="user"/>
+  </typeAliases>
+  
+  <environments default="development">
+    <environment id="development">
+      <transactionManager type="JDBC"/>
+      <dataSource type="JNDI">
+		 <property name="data_source" value="java:comp/env/jdbc/mydb"/>
+      </dataSource>
+    </environment>
+  </environments>
+  
+  <mappers>
+    <mapper resource="dao/MySqlProjectDao.xml"/>
+    <mapper resource="dao/MySqlUserDao.xml"/>
+  </mappers>
+</configuration>

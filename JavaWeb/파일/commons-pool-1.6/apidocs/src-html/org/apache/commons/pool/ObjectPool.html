@@ -1,0 +1,259 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<FONT color="green">003</FONT>     * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<FONT color="green">004</FONT>     * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<FONT color="green">006</FONT>     * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<FONT color="green">007</FONT>     * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<FONT color="green">008</FONT>     *<a name="line.8"></a>
+<FONT color="green">009</FONT>     *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<FONT color="green">010</FONT>     *<a name="line.10"></a>
+<FONT color="green">011</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<FONT color="green">012</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<FONT color="green">013</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<FONT color="green">014</FONT>     * See the License for the specific language governing permissions and<a name="line.14"></a>
+<FONT color="green">015</FONT>     * limitations under the License.<a name="line.15"></a>
+<FONT color="green">016</FONT>     */<a name="line.16"></a>
+<FONT color="green">017</FONT>    <a name="line.17"></a>
+<FONT color="green">018</FONT>    package org.apache.commons.pool;<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>    import java.util.NoSuchElementException;<a name="line.20"></a>
+<FONT color="green">021</FONT>    <a name="line.21"></a>
+<FONT color="green">022</FONT>    /**<a name="line.22"></a>
+<FONT color="green">023</FONT>     * A pooling interface.<a name="line.23"></a>
+<FONT color="green">024</FONT>     * &lt;p&gt;<a name="line.24"></a>
+<FONT color="green">025</FONT>     * &lt;code&gt;ObjectPool&lt;/code&gt; defines a trivially simple pooling interface. The only<a name="line.25"></a>
+<FONT color="green">026</FONT>     * required methods are {@link #borrowObject borrowObject}, {@link #returnObject returnObject}<a name="line.26"></a>
+<FONT color="green">027</FONT>     * and {@link #invalidateObject invalidateObject}.<a name="line.27"></a>
+<FONT color="green">028</FONT>     * &lt;/p&gt;<a name="line.28"></a>
+<FONT color="green">029</FONT>     * &lt;p&gt;<a name="line.29"></a>
+<FONT color="green">030</FONT>     * Example of use:<a name="line.30"></a>
+<FONT color="green">031</FONT>     * &lt;pre style="border:solid thin; padding: 1ex;"<a name="line.31"></a>
+<FONT color="green">032</FONT>     * &gt; Object obj = &lt;code style="color:#00C"&gt;null&lt;/code&gt;;<a name="line.32"></a>
+<FONT color="green">033</FONT>     *<a name="line.33"></a>
+<FONT color="green">034</FONT>     * &lt;code style="color:#00C"&gt;try&lt;/code&gt; {<a name="line.34"></a>
+<FONT color="green">035</FONT>     *     obj = pool.borrowObject();<a name="line.35"></a>
+<FONT color="green">036</FONT>     *     &lt;code style="color:#00C"&gt;try&lt;/code&gt; {<a name="line.36"></a>
+<FONT color="green">037</FONT>     *         &lt;code style="color:#0C0"&gt;//...use the object...&lt;/code&gt;<a name="line.37"></a>
+<FONT color="green">038</FONT>     *     } &lt;code style="color:#00C"&gt;catch&lt;/code&gt;(Exception e) {<a name="line.38"></a>
+<FONT color="green">039</FONT>     *         &lt;code style="color:#0C0"&gt;// invalidate the object&lt;/code&gt;<a name="line.39"></a>
+<FONT color="green">040</FONT>     *         pool.invalidateObject(obj);<a name="line.40"></a>
+<FONT color="green">041</FONT>     *         &lt;code style="color:#0C0"&gt;// do not return the object to the pool twice&lt;/code&gt;<a name="line.41"></a>
+<FONT color="green">042</FONT>     *         obj = &lt;code style="color:#00C"&gt;null&lt;/code&gt;;<a name="line.42"></a>
+<FONT color="green">043</FONT>     *     } &lt;code style="color:#00C"&gt;finally&lt;/code&gt; {<a name="line.43"></a>
+<FONT color="green">044</FONT>     *         &lt;code style="color:#0C0"&gt;// make sure the object is returned to the pool&lt;/code&gt;<a name="line.44"></a>
+<FONT color="green">045</FONT>     *         &lt;code style="color:#00C"&gt;if&lt;/code&gt;(&lt;code style="color:#00C"&gt;null&lt;/code&gt; != obj) {<a name="line.45"></a>
+<FONT color="green">046</FONT>     *             pool.returnObject(obj);<a name="line.46"></a>
+<FONT color="green">047</FONT>     *        }<a name="line.47"></a>
+<FONT color="green">048</FONT>     *     }<a name="line.48"></a>
+<FONT color="green">049</FONT>     * } &lt;code style="color:#00C"&gt;catch&lt;/code&gt;(Exception e) {<a name="line.49"></a>
+<FONT color="green">050</FONT>     *       &lt;code style="color:#0C0"&gt;// failed to borrow an object&lt;/code&gt;<a name="line.50"></a>
+<FONT color="green">051</FONT>     * }&lt;/pre&gt;<a name="line.51"></a>
+<FONT color="green">052</FONT>     * &lt;/p&gt;<a name="line.52"></a>
+<FONT color="green">053</FONT>     *<a name="line.53"></a>
+<FONT color="green">054</FONT>     * &lt;p&gt;See {@link BaseObjectPool} for a simple base implementation.&lt;/p&gt;<a name="line.54"></a>
+<FONT color="green">055</FONT>     *<a name="line.55"></a>
+<FONT color="green">056</FONT>     * @param &lt;T&gt; the type of objects held in this pool<a name="line.56"></a>
+<FONT color="green">057</FONT>     * <a name="line.57"></a>
+<FONT color="green">058</FONT>     * @author Rodney Waldhoff<a name="line.58"></a>
+<FONT color="green">059</FONT>     * @author Sandy McArthur<a name="line.59"></a>
+<FONT color="green">060</FONT>     * @version $Revision: 1222396 $ $Date: 2011-12-22 14:02:25 -0500 (Thu, 22 Dec 2011) $<a name="line.60"></a>
+<FONT color="green">061</FONT>     * @see PoolableObjectFactory<a name="line.61"></a>
+<FONT color="green">062</FONT>     * @see ObjectPoolFactory<a name="line.62"></a>
+<FONT color="green">063</FONT>     * @see KeyedObjectPool<a name="line.63"></a>
+<FONT color="green">064</FONT>     * @see BaseObjectPool<a name="line.64"></a>
+<FONT color="green">065</FONT>     * @since Pool 1.0<a name="line.65"></a>
+<FONT color="green">066</FONT>     */<a name="line.66"></a>
+<FONT color="green">067</FONT>    public interface ObjectPool&lt;T&gt; {<a name="line.67"></a>
+<FONT color="green">068</FONT>        /**<a name="line.68"></a>
+<FONT color="green">069</FONT>         * Obtains an instance from this pool.<a name="line.69"></a>
+<FONT color="green">070</FONT>         * &lt;p&gt;<a name="line.70"></a>
+<FONT color="green">071</FONT>         * Instances returned from this method will have been either newly created with<a name="line.71"></a>
+<FONT color="green">072</FONT>         * {@link PoolableObjectFactory#makeObject makeObject} or will be a previously idle object and<a name="line.72"></a>
+<FONT color="green">073</FONT>         * have been activated with {@link PoolableObjectFactory#activateObject activateObject} and<a name="line.73"></a>
+<FONT color="green">074</FONT>         * then validated with {@link PoolableObjectFactory#validateObject validateObject}.<a name="line.74"></a>
+<FONT color="green">075</FONT>         * &lt;/p&gt;<a name="line.75"></a>
+<FONT color="green">076</FONT>         * &lt;p&gt;<a name="line.76"></a>
+<FONT color="green">077</FONT>         * By contract, clients &lt;strong&gt;must&lt;/strong&gt; return the borrowed instance using<a name="line.77"></a>
+<FONT color="green">078</FONT>         * {@link #returnObject returnObject}, {@link #invalidateObject invalidateObject}, or a related method<a name="line.78"></a>
+<FONT color="green">079</FONT>         * as defined in an implementation or sub-interface.<a name="line.79"></a>
+<FONT color="green">080</FONT>         * &lt;/p&gt;<a name="line.80"></a>
+<FONT color="green">081</FONT>         * &lt;p&gt;<a name="line.81"></a>
+<FONT color="green">082</FONT>         * The behaviour of this method when the pool has been exhausted<a name="line.82"></a>
+<FONT color="green">083</FONT>         * is not strictly specified (although it may be specified by implementations).<a name="line.83"></a>
+<FONT color="green">084</FONT>         * Older versions of this method would return &lt;code&gt;null&lt;/code&gt; to indicate exhaustion,<a name="line.84"></a>
+<FONT color="green">085</FONT>         * newer versions are encouraged to throw a {@link NoSuchElementException}.<a name="line.85"></a>
+<FONT color="green">086</FONT>         * &lt;/p&gt;<a name="line.86"></a>
+<FONT color="green">087</FONT>         *<a name="line.87"></a>
+<FONT color="green">088</FONT>         * @return an instance from this pool.<a name="line.88"></a>
+<FONT color="green">089</FONT>         * @throws IllegalStateException after {@link #close close} has been called on this pool.<a name="line.89"></a>
+<FONT color="green">090</FONT>         * @throws Exception when {@link PoolableObjectFactory#makeObject makeObject} throws an exception.<a name="line.90"></a>
+<FONT color="green">091</FONT>         * @throws NoSuchElementException when the pool is exhausted and cannot or will not return another instance.<a name="line.91"></a>
+<FONT color="green">092</FONT>         */<a name="line.92"></a>
+<FONT color="green">093</FONT>        T borrowObject() throws Exception, NoSuchElementException, IllegalStateException;<a name="line.93"></a>
+<FONT color="green">094</FONT>    <a name="line.94"></a>
+<FONT color="green">095</FONT>        /**<a name="line.95"></a>
+<FONT color="green">096</FONT>         * Return an instance to the pool.<a name="line.96"></a>
+<FONT color="green">097</FONT>         * By contract, &lt;code&gt;obj&lt;/code&gt; &lt;strong&gt;must&lt;/strong&gt; have been obtained<a name="line.97"></a>
+<FONT color="green">098</FONT>         * using {@link #borrowObject() borrowObject}<a name="line.98"></a>
+<FONT color="green">099</FONT>         * or a related method as defined in an implementation<a name="line.99"></a>
+<FONT color="green">100</FONT>         * or sub-interface.<a name="line.100"></a>
+<FONT color="green">101</FONT>         *<a name="line.101"></a>
+<FONT color="green">102</FONT>         * @param obj a {@link #borrowObject borrowed} instance to be returned.<a name="line.102"></a>
+<FONT color="green">103</FONT>         * @throws Exception <a name="line.103"></a>
+<FONT color="green">104</FONT>         */<a name="line.104"></a>
+<FONT color="green">105</FONT>        void returnObject(T obj) throws Exception;<a name="line.105"></a>
+<FONT color="green">106</FONT>    <a name="line.106"></a>
+<FONT color="green">107</FONT>        /**<a name="line.107"></a>
+<FONT color="green">108</FONT>         * &lt;p&gt;Invalidates an object from the pool.&lt;/p&gt;<a name="line.108"></a>
+<FONT color="green">109</FONT>         * <a name="line.109"></a>
+<FONT color="green">110</FONT>         * &lt;p&gt;By contract, &lt;code&gt;obj&lt;/code&gt; &lt;strong&gt;must&lt;/strong&gt; have been obtained<a name="line.110"></a>
+<FONT color="green">111</FONT>         * using {@link #borrowObject borrowObject} or a related method as defined in<a name="line.111"></a>
+<FONT color="green">112</FONT>         * an implementation or sub-interface.&lt;/p&gt;<a name="line.112"></a>
+<FONT color="green">113</FONT>         *<a name="line.113"></a>
+<FONT color="green">114</FONT>         * &lt;p&gt;This method should be used when an object that has been borrowed<a name="line.114"></a>
+<FONT color="green">115</FONT>         * is determined (due to an exception or other problem) to be invalid.&lt;/p&gt;<a name="line.115"></a>
+<FONT color="green">116</FONT>         *<a name="line.116"></a>
+<FONT color="green">117</FONT>         * @param obj a {@link #borrowObject borrowed} instance to be disposed.<a name="line.117"></a>
+<FONT color="green">118</FONT>         * @throws Exception<a name="line.118"></a>
+<FONT color="green">119</FONT>         */<a name="line.119"></a>
+<FONT color="green">120</FONT>        void invalidateObject(T obj) throws Exception;<a name="line.120"></a>
+<FONT color="green">121</FONT>    <a name="line.121"></a>
+<FONT color="green">122</FONT>        /**<a name="line.122"></a>
+<FONT color="green">123</FONT>         * Create an object using the {@link PoolableObjectFactory factory} or other<a name="line.123"></a>
+<FONT color="green">124</FONT>         * implementation dependent mechanism, passivate it, and then place it in the idle object pool.<a name="line.124"></a>
+<FONT color="green">125</FONT>         * &lt;code&gt;addObject&lt;/code&gt; is useful for "pre-loading" a pool with idle objects.<a name="line.125"></a>
+<FONT color="green">126</FONT>         * (Optional operation).<a name="line.126"></a>
+<FONT color="green">127</FONT>         *<a name="line.127"></a>
+<FONT color="green">128</FONT>         * @throws Exception when {@link PoolableObjectFactory#makeObject} fails.<a name="line.128"></a>
+<FONT color="green">129</FONT>         * @throws IllegalStateException after {@link #close} has been called on this pool.<a name="line.129"></a>
+<FONT color="green">130</FONT>         * @throws UnsupportedOperationException when this pool cannot add new idle objects.<a name="line.130"></a>
+<FONT color="green">131</FONT>         */<a name="line.131"></a>
+<FONT color="green">132</FONT>        void addObject() throws Exception, IllegalStateException, UnsupportedOperationException;<a name="line.132"></a>
+<FONT color="green">133</FONT>    <a name="line.133"></a>
+<FONT color="green">134</FONT>        /**<a name="line.134"></a>
+<FONT color="green">135</FONT>         * Return the number of instances<a name="line.135"></a>
+<FONT color="green">136</FONT>         * currently idle in this pool (optional operation).<a name="line.136"></a>
+<FONT color="green">137</FONT>         * This may be considered an approximation of the number<a name="line.137"></a>
+<FONT color="green">138</FONT>         * of objects that can be {@link #borrowObject borrowed}<a name="line.138"></a>
+<FONT color="green">139</FONT>         * without creating any new instances.<a name="line.139"></a>
+<FONT color="green">140</FONT>         * Returns a negative value if this information is not available.<a name="line.140"></a>
+<FONT color="green">141</FONT>         *<a name="line.141"></a>
+<FONT color="green">142</FONT>         * @return the number of instances currently idle in this pool or a negative value if unsupported<a name="line.142"></a>
+<FONT color="green">143</FONT>         * @throws UnsupportedOperationException &lt;strong&gt;deprecated&lt;/strong&gt;: if this implementation does not support the operation<a name="line.143"></a>
+<FONT color="green">144</FONT>         */<a name="line.144"></a>
+<FONT color="green">145</FONT>        int getNumIdle() throws UnsupportedOperationException;<a name="line.145"></a>
+<FONT color="green">146</FONT>    <a name="line.146"></a>
+<FONT color="green">147</FONT>        /**<a name="line.147"></a>
+<FONT color="green">148</FONT>         * Return the number of instances<a name="line.148"></a>
+<FONT color="green">149</FONT>         * currently borrowed from this pool<a name="line.149"></a>
+<FONT color="green">150</FONT>         * (optional operation).<a name="line.150"></a>
+<FONT color="green">151</FONT>         * Returns a negative value if this information is not available.<a name="line.151"></a>
+<FONT color="green">152</FONT>         *<a name="line.152"></a>
+<FONT color="green">153</FONT>         * @return the number of instances currently borrowed from this pool or a negative value if unsupported<a name="line.153"></a>
+<FONT color="green">154</FONT>         * @throws UnsupportedOperationException &lt;strong&gt;deprecated&lt;/strong&gt;: if this implementation does not support the operation<a name="line.154"></a>
+<FONT color="green">155</FONT>         */<a name="line.155"></a>
+<FONT color="green">156</FONT>        int getNumActive() throws UnsupportedOperationException;<a name="line.156"></a>
+<FONT color="green">157</FONT>    <a name="line.157"></a>
+<FONT color="green">158</FONT>        /**<a name="line.158"></a>
+<FONT color="green">159</FONT>         * Clears any objects sitting idle in the pool, releasing any<a name="line.159"></a>
+<FONT color="green">160</FONT>         * associated resources (optional operation).<a name="line.160"></a>
+<FONT color="green">161</FONT>         * Idle objects cleared must be {@link PoolableObjectFactory#destroyObject(Object) destroyed}.<a name="line.161"></a>
+<FONT color="green">162</FONT>         *<a name="line.162"></a>
+<FONT color="green">163</FONT>         * @throws UnsupportedOperationException if this implementation does not support the operation<a name="line.163"></a>
+<FONT color="green">164</FONT>         */<a name="line.164"></a>
+<FONT color="green">165</FONT>        void clear() throws Exception, UnsupportedOperationException;<a name="line.165"></a>
+<FONT color="green">166</FONT>    <a name="line.166"></a>
+<FONT color="green">167</FONT>        /**<a name="line.167"></a>
+<FONT color="green">168</FONT>         * Close this pool, and free any resources associated with it.<a name="line.168"></a>
+<FONT color="green">169</FONT>         * &lt;p&gt;<a name="line.169"></a>
+<FONT color="green">170</FONT>         * Calling {@link #addObject} or {@link #borrowObject} after invoking<a name="line.170"></a>
+<FONT color="green">171</FONT>         * this method on a pool will cause them to throw an<a name="line.171"></a>
+<FONT color="green">172</FONT>         * {@link IllegalStateException}.<a name="line.172"></a>
+<FONT color="green">173</FONT>         * &lt;/p&gt;<a name="line.173"></a>
+<FONT color="green">174</FONT>         *<a name="line.174"></a>
+<FONT color="green">175</FONT>         * @throws Exception &lt;strong&gt;deprecated&lt;/strong&gt;: implementations should silently fail if not all resources can be freed.<a name="line.175"></a>
+<FONT color="green">176</FONT>         */<a name="line.176"></a>
+<FONT color="green">177</FONT>        void close() throws Exception;<a name="line.177"></a>
+<FONT color="green">178</FONT>    <a name="line.178"></a>
+<FONT color="green">179</FONT>        /**<a name="line.179"></a>
+<FONT color="green">180</FONT>         * Sets the {@link PoolableObjectFactory factory} this pool uses<a name="line.180"></a>
+<FONT color="green">181</FONT>         * to create new instances (optional operation). Trying to change<a name="line.181"></a>
+<FONT color="green">182</FONT>         * the &lt;code&gt;factory&lt;/code&gt; after a pool has been used will frequently<a name="line.182"></a>
+<FONT color="green">183</FONT>         * throw an {@link UnsupportedOperationException}. It is up to the pool<a name="line.183"></a>
+<FONT color="green">184</FONT>         * implementation to determine when it is acceptable to call this method.<a name="line.184"></a>
+<FONT color="green">185</FONT>         *<a name="line.185"></a>
+<FONT color="green">186</FONT>         * @param factory the {@link PoolableObjectFactory} used to create new instances.<a name="line.186"></a>
+<FONT color="green">187</FONT>         * @throws IllegalStateException when the factory cannot be set at this time<a name="line.187"></a>
+<FONT color="green">188</FONT>         * @throws UnsupportedOperationException if this implementation does not support the operation<a name="line.188"></a>
+<FONT color="green">189</FONT>         * @deprecated to be removed in pool 2.0<a name="line.189"></a>
+<FONT color="green">190</FONT>         */<a name="line.190"></a>
+<FONT color="green">191</FONT>        @Deprecated<a name="line.191"></a>
+<FONT color="green">192</FONT>        void setFactory(PoolableObjectFactory&lt;T&gt; factory) throws IllegalStateException, UnsupportedOperationException;<a name="line.192"></a>
+<FONT color="green">193</FONT>    }<a name="line.193"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

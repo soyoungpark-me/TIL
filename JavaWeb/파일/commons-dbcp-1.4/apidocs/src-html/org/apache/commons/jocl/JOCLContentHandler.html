@@ -1,0 +1,865 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<FONT color="green">003</FONT>     * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<FONT color="green">004</FONT>     * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<FONT color="green">006</FONT>     * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<FONT color="green">007</FONT>     * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<FONT color="green">008</FONT>     * <a name="line.8"></a>
+<FONT color="green">009</FONT>     *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<FONT color="green">010</FONT>     * <a name="line.10"></a>
+<FONT color="green">011</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<FONT color="green">012</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<FONT color="green">013</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<FONT color="green">014</FONT>     * See the License for the specific language governing permissions and<a name="line.14"></a>
+<FONT color="green">015</FONT>     * limitations under the License.<a name="line.15"></a>
+<FONT color="green">016</FONT>     */<a name="line.16"></a>
+<FONT color="green">017</FONT>    <a name="line.17"></a>
+<FONT color="green">018</FONT>    package org.apache.commons.jocl;<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>    import org.xml.sax.Attributes;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import org.xml.sax.InputSource;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import org.xml.sax.Locator;<a name="line.22"></a>
+<FONT color="green">023</FONT>    import org.xml.sax.SAXException;<a name="line.23"></a>
+<FONT color="green">024</FONT>    import org.xml.sax.XMLReader;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import org.xml.sax.helpers.DefaultHandler;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import org.xml.sax.helpers.XMLReaderFactory;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import java.lang.reflect.InvocationTargetException;<a name="line.27"></a>
+<FONT color="green">028</FONT>    import java.io.InputStream;<a name="line.28"></a>
+<FONT color="green">029</FONT>    import java.io.Reader;<a name="line.29"></a>
+<FONT color="green">030</FONT>    import java.io.File;<a name="line.30"></a>
+<FONT color="green">031</FONT>    import java.io.FileInputStream;<a name="line.31"></a>
+<FONT color="green">032</FONT>    import java.io.FileNotFoundException;<a name="line.32"></a>
+<FONT color="green">033</FONT>    import java.io.IOException;<a name="line.33"></a>
+<FONT color="green">034</FONT>    import java.util.Collection;<a name="line.34"></a>
+<FONT color="green">035</FONT>    import java.util.List;<a name="line.35"></a>
+<FONT color="green">036</FONT>    import java.util.ArrayList;<a name="line.36"></a>
+<FONT color="green">037</FONT>    <a name="line.37"></a>
+<FONT color="green">038</FONT>    // to do:<a name="line.38"></a>
+<FONT color="green">039</FONT>    //  + add support for strings as CDATA (makes multiline strings easier, for example)<a name="line.39"></a>
+<FONT color="green">040</FONT>    //  ? some kind of support for invoking methods?<a name="line.40"></a>
+<FONT color="green">041</FONT>    <a name="line.41"></a>
+<FONT color="green">042</FONT>    /**<a name="line.42"></a>
+<FONT color="green">043</FONT>     * A {@link org.xml.sax.ContentHandler}<a name="line.43"></a>
+<FONT color="green">044</FONT>     * for the Java Object Configuration Language.<a name="line.44"></a>
+<FONT color="green">045</FONT>     * &lt;p&gt;<a name="line.45"></a>
+<FONT color="green">046</FONT>     * JOCL provides an XML syntax for constructing arbitrary Java<a name="line.46"></a>
+<FONT color="green">047</FONT>     * {@link java.lang.Object} instances.  It does not define a full<a name="line.47"></a>
+<FONT color="green">048</FONT>     * XML document type (there's no root element), but rather an<a name="line.48"></a>
+<FONT color="green">049</FONT>     * XML fragment describing the {@link java.lang.Object &lt;tt&gt;Object&lt;/tt&gt;s} to be<a name="line.49"></a>
+<FONT color="green">050</FONT>     * constructed.<a name="line.50"></a>
+<FONT color="green">051</FONT>     * &lt;p&gt;<a name="line.51"></a>
+<FONT color="green">052</FONT>     * In a JOCL fragment, one may define a series of objects using<a name="line.52"></a>
+<FONT color="green">053</FONT>     * the &lt;tt&gt;object&lt;/tt&gt; element.  A trivial example is:<a name="line.53"></a>
+<FONT color="green">054</FONT>     * &lt;pre&gt; &amp;lt;object class="java.util.Date"/&amp;gt;&lt;/pre&gt;<a name="line.54"></a>
+<FONT color="green">055</FONT>     * which constructs an instance of &lt;tt&gt;java.util.Date&lt;/tt&gt;<a name="line.55"></a>
+<FONT color="green">056</FONT>     * using the no-argument constructor.<a name="line.56"></a>
+<FONT color="green">057</FONT>     * &lt;p&gt;<a name="line.57"></a>
+<FONT color="green">058</FONT>     * After a "root-level" &lt;tt&gt;&amp;lt;object&amp;gt;&lt;/tt&gt; element has been processed<a name="line.58"></a>
+<FONT color="green">059</FONT>     * (that is, once {@link #endElement(java.lang.String,java.lang.String,java.lang.String)}<a name="line.59"></a>
+<FONT color="green">060</FONT>     * has been invoked by the {@link XMLReader}), it will be appended to a list of &lt;tt&gt;Object&lt;/tt&gt;s<a name="line.60"></a>
+<FONT color="green">061</FONT>     * maintained by the &lt;tt&gt;JOCLContentHandler&lt;/tt&gt;.<a name="line.61"></a>
+<FONT color="green">062</FONT>     * &lt;p&gt;<a name="line.62"></a>
+<FONT color="green">063</FONT>     * (See {@link #size},<a name="line.63"></a>
+<FONT color="green">064</FONT>     * {@link #clear},<a name="line.64"></a>
+<FONT color="green">065</FONT>     * {@link #clear(int)},<a name="line.65"></a>
+<FONT color="green">066</FONT>     * {@link #getType(int)},<a name="line.66"></a>
+<FONT color="green">067</FONT>     * {@link #getValue(int)},<a name="line.67"></a>
+<FONT color="green">068</FONT>     * {@link #getTypeArray},<a name="line.68"></a>
+<FONT color="green">069</FONT>     * and<a name="line.69"></a>
+<FONT color="green">070</FONT>     * {@link #getValueArray}.)<a name="line.70"></a>
+<FONT color="green">071</FONT>     * &lt;p&gt;<a name="line.71"></a>
+<FONT color="green">072</FONT>     * You can list multiple &lt;tt&gt;object&lt;/tt&gt; elements in a fragment.  For example,<a name="line.72"></a>
+<FONT color="green">073</FONT>     * after processing the JOCL fragment:<a name="line.73"></a>
+<FONT color="green">074</FONT>     * &lt;pre&gt; &amp;lt;object class="java.util.Date"/&amp;gt;<a name="line.74"></a>
+<FONT color="green">075</FONT>     * &amp;lt;object class="java.util.Date"/&amp;gt;&lt;/pre&gt;<a name="line.75"></a>
+<FONT color="green">076</FONT>     * The {@link #getTypeArray} method<a name="line.76"></a>
+<FONT color="green">077</FONT>     * will return an array composed<a name="line.77"></a>
+<FONT color="green">078</FONT>     * of two instances of &lt;tt&gt;java.util.Date&lt;/tt&gt;.  The sequence of<a name="line.78"></a>
+<FONT color="green">079</FONT>     * {@link java.lang.Object &lt;tt&gt;Object&lt;/tt&gt;s} in the array<a name="line.79"></a>
+<FONT color="green">080</FONT>     * will correspond to the sequence of &lt;tt&gt;&amp;lt;object&amp;gt;&lt;/tt&gt; elements in the JOCL fragment.<a name="line.80"></a>
+<FONT color="green">081</FONT>     * &lt;p&gt;<a name="line.81"></a>
+<FONT color="green">082</FONT>     * As we've seen, when used with no child-elements, the &lt;tt&gt;&amp;lt;object&amp;gt;&lt;/tt&gt;<a name="line.82"></a>
+<FONT color="green">083</FONT>     * tag will cause the no-argument constructor of the specified class to be invoked.<a name="line.83"></a>
+<FONT color="green">084</FONT>     * It is also possible to nest &lt;tt&gt;&amp;lt;object&amp;gt;&lt;/tt&gt; tags to provide arguments<a name="line.84"></a>
+<FONT color="green">085</FONT>     * for the constructor.<a name="line.85"></a>
+<FONT color="green">086</FONT>     * For example, the fragment:<a name="line.86"></a>
+<FONT color="green">087</FONT>     * &lt;pre&gt; &amp;lt;object class="mypackage.Foo"&amp;gt;<a name="line.87"></a>
+<FONT color="green">088</FONT>     *   &amp;lt;object class="mypackage.Bar"/&amp;gt;<a name="line.88"></a>
+<FONT color="green">089</FONT>     * &amp;lt;/object&amp;gt;&lt;/pre&gt;<a name="line.89"></a>
+<FONT color="green">090</FONT>     * will add an instance of &lt;tt&gt;mypackage.Foo&lt;/tt&gt; to the object list, constructed via<a name="line.90"></a>
+<FONT color="green">091</FONT>     * &lt;tt&gt;new mypackage.Foo(new mypackage.Bar())&lt;/tt&gt;.<a name="line.91"></a>
+<FONT color="green">092</FONT>     * &lt;p&gt;<a name="line.92"></a>
+<FONT color="green">093</FONT>     * There is a special syntax available creating primitive values and arguments,<a name="line.93"></a>
+<FONT color="green">094</FONT>     * as well as for constructing {@link java.lang.String &lt;tt&gt;String&lt;/tt&gt;}s. Some examples:<a name="line.94"></a>
+<FONT color="green">095</FONT>     * &lt;p&gt;<a name="line.95"></a>
+<FONT color="green">096</FONT>     * &lt;pre&gt; &amp;lt;byte value="3"/&amp;gt;<a name="line.96"></a>
+<FONT color="green">097</FONT>     * &amp;lt;boolean value="false"/&amp;gt;<a name="line.97"></a>
+<FONT color="green">098</FONT>     * &amp;lt;char value="c"/&amp;gt;<a name="line.98"></a>
+<FONT color="green">099</FONT>     * &amp;lt;double value="3.14159"/&amp;gt;<a name="line.99"></a>
+<FONT color="green">100</FONT>     * &amp;lt;float value="3.14"/&amp;gt;<a name="line.100"></a>
+<FONT color="green">101</FONT>     * &amp;lt;int value="17"/&amp;gt;<a name="line.101"></a>
+<FONT color="green">102</FONT>     * &amp;lt;long value="1700000"/&amp;gt;<a name="line.102"></a>
+<FONT color="green">103</FONT>     * &amp;lt;short value="1"/&amp;gt;<a name="line.103"></a>
+<FONT color="green">104</FONT>     * &amp;lt;string value="The quick brown fox..."/&amp;gt;&lt;/pre&gt;<a name="line.104"></a>
+<FONT color="green">105</FONT>     * &lt;p&gt;<a name="line.105"></a>
+<FONT color="green">106</FONT>     * When invoked at the "root" level (that is, with no &lt;tt&gt;&amp;lt;object&amp;gt;&lt;/tt&gt; parent),<a name="line.106"></a>
+<FONT color="green">107</FONT>     * this will cause the corresponding "object wrapper" to be added to the list of<a name="line.107"></a>
+<FONT color="green">108</FONT>     * {@link java.lang.Object &lt;tt&gt;Object&lt;/tt&gt;}s.  The {@link #getType type} for these<a name="line.108"></a>
+<FONT color="green">109</FONT>     * objects will reflect the proper primitive type, however.  When invoked with an<a name="line.109"></a>
+<FONT color="green">110</FONT>     * &lt;tt&gt;&amp;lt;object&amp;gt;&lt;/tt&gt; parent, these will be treated as primitive arguments to the<a name="line.110"></a>
+<FONT color="green">111</FONT>     * specified {@link java.lang.Object &lt;tt&gt;Object&lt;/tt&gt;}'s constructor.  For example, while:<a name="line.111"></a>
+<FONT color="green">112</FONT>     * &lt;p&gt;<a name="line.112"></a>
+<FONT color="green">113</FONT>     * &lt;pre&gt; &amp;lt;int value="5"/&amp;gt;<a name="line.113"></a>
+<FONT color="green">114</FONT>     * &amp;lt;int value="26"/&amp;gt;<a name="line.114"></a>
+<FONT color="green">115</FONT>     * &amp;lt;int value="100"/&amp;gt;&lt;/pre&gt;<a name="line.115"></a>
+<FONT color="green">116</FONT>     * &lt;p&gt;<a name="line.116"></a>
+<FONT color="green">117</FONT>     * results in three {@link java.lang.Integer} instances being added to the<a name="line.117"></a>
+<FONT color="green">118</FONT>     * list of values, with types corresponding to {@link java.lang.Integer}, the fragment:<a name="line.118"></a>
+<FONT color="green">119</FONT>     * &lt;p&gt;<a name="line.119"></a>
+<FONT color="green">120</FONT>     * &lt;pre&gt; &amp;lt;int value="5"/&amp;gt;<a name="line.120"></a>
+<FONT color="green">121</FONT>     * &amp;lt;int value="26"/&amp;gt;<a name="line.121"></a>
+<FONT color="green">122</FONT>     * &amp;lt;int value="100"/&amp;gt;&lt;/pre&gt;<a name="line.122"></a>
+<FONT color="green">123</FONT>     * &lt;p&gt;<a name="line.123"></a>
+<FONT color="green">124</FONT>     * results in three {@link java.lang.Integer} instances being added to the<a name="line.124"></a>
+<FONT color="green">125</FONT>     * list of values, with types corresponding to {@link java.lang.Integer#TYPE}.<a name="line.125"></a>
+<FONT color="green">126</FONT>     * &lt;p&gt;<a name="line.126"></a>
+<FONT color="green">127</FONT>     * Hence if you want to invoke the &lt;tt&gt;mypackage.Foo(java.lang.Integer,java.lang.Integer,java.lang.Integer)&lt;/tt&gt;<a name="line.127"></a>
+<FONT color="green">128</FONT>     * constructor, use:<a name="line.128"></a>
+<FONT color="green">129</FONT>     * &lt;pre&gt; &amp;lt;object class="mypackage.Foo"/&amp;gt;<a name="line.129"></a>
+<FONT color="green">130</FONT>     *   &amp;lt;object class="java.lang.Integer"&amp;gt;&amp;lt;int value="5"/&amp;gt;&amp;lt;/object&amp;gt;<a name="line.130"></a>
+<FONT color="green">131</FONT>     *   &amp;lt;object class="java.lang.Integer"&amp;gt;&amp;lt;int value="26"/&amp;gt;&amp;lt;/object&amp;gt;<a name="line.131"></a>
+<FONT color="green">132</FONT>     *   &amp;lt;object class="java.lang.Integer"&amp;gt;&amp;lt;int value="100"/&amp;gt;&amp;lt;/object&amp;gt;<a name="line.132"></a>
+<FONT color="green">133</FONT>     * &amp;lt;/object&amp;gt;&lt;/pre&gt;<a name="line.133"></a>
+<FONT color="green">134</FONT>     * &lt;p&gt;<a name="line.134"></a>
+<FONT color="green">135</FONT>     * If you want to invoke the &lt;tt&gt;mypackage.Foo(int,int,int)&lt;/tt&gt;<a name="line.135"></a>
+<FONT color="green">136</FONT>     * constructor, use:<a name="line.136"></a>
+<FONT color="green">137</FONT>     * &lt;pre&gt; &amp;lt;object class="mypackage.Foo"/&amp;gt;<a name="line.137"></a>
+<FONT color="green">138</FONT>     *   &amp;lt;int value="5"/&amp;gt;<a name="line.138"></a>
+<FONT color="green">139</FONT>     *   &amp;lt;int value="26"/&amp;gt;<a name="line.139"></a>
+<FONT color="green">140</FONT>     *   &amp;lt;int value="100"/&amp;gt;<a name="line.140"></a>
+<FONT color="green">141</FONT>     * &amp;lt;/object&amp;gt;&lt;/pre&gt;<a name="line.141"></a>
+<FONT color="green">142</FONT>     * &lt;p&gt;<a name="line.142"></a>
+<FONT color="green">143</FONT>     * If you'd like to creat a &lt;tt&gt;null&lt;/tt&gt; object, use:<a name="line.143"></a>
+<FONT color="green">144</FONT>     * &lt;pre&gt; &amp;lt;object class="mypackage.Bar" null="true"/&amp;gt;&lt;/pre&gt;<a name="line.144"></a>
+<FONT color="green">145</FONT>     * &lt;p&gt;<a name="line.145"></a>
+<FONT color="green">146</FONT>     * Here's a simple but complete example:<a name="line.146"></a>
+<FONT color="green">147</FONT>     * &lt;pre&gt; &amp;lt;?xml version="1.0"?&amp;gt;<a name="line.147"></a>
+<FONT color="green">148</FONT>     * &amp;lt;arbitrary-root xmlns="http://apache.org/xml/xmlns/jakarta/commons/jocl"&amp;gt;<a name="line.148"></a>
+<FONT color="green">149</FONT>     *   &amp;lt;string value="Hello World!"/&amp;gt;<a name="line.149"></a>
+<FONT color="green">150</FONT>     *   &amp;lt;string/&amp;gt;<a name="line.150"></a>
+<FONT color="green">151</FONT>     *   &amp;lt;boolean/&amp;gt;<a name="line.151"></a>
+<FONT color="green">152</FONT>     *   &amp;lt;boolean value="true"/&amp;gt;<a name="line.152"></a>
+<FONT color="green">153</FONT>     *   &amp;lt;byte value="1"/&amp;gt;<a name="line.153"></a>
+<FONT color="green">154</FONT>     *   &amp;lt;short value="1"/&amp;gt;<a name="line.154"></a>
+<FONT color="green">155</FONT>     *   &amp;lt;int value="1"/&amp;gt;<a name="line.155"></a>
+<FONT color="green">156</FONT>     *   &amp;lt;long value="1"/&amp;gt;<a name="line.156"></a>
+<FONT color="green">157</FONT>     *   &amp;lt;float value="1.0"/&amp;gt;<a name="line.157"></a>
+<FONT color="green">158</FONT>     *   &amp;lt;double value="1.0"/&amp;gt;<a name="line.158"></a>
+<FONT color="green">159</FONT>     *   &amp;lt;object class="java.util.Date"/&amp;gt;<a name="line.159"></a>
+<FONT color="green">160</FONT>     *   &amp;lt;object class="java.util.Date"&amp;gt;<a name="line.160"></a>
+<FONT color="green">161</FONT>     *    &amp;lt;int value="1"/&amp;gt;<a name="line.161"></a>
+<FONT color="green">162</FONT>     *    &amp;lt;int value="1"/&amp;gt;<a name="line.162"></a>
+<FONT color="green">163</FONT>     *    &amp;lt;int value="1"/&amp;gt;<a name="line.163"></a>
+<FONT color="green">164</FONT>     *   &amp;lt;/object&amp;gt;<a name="line.164"></a>
+<FONT color="green">165</FONT>     * &amp;lt;/arbitrary-root&amp;gt;&lt;/pre&gt;<a name="line.165"></a>
+<FONT color="green">166</FONT>     * &lt;p&gt;<a name="line.166"></a>
+<FONT color="green">167</FONT>     * Formally, a DTD for the JOCL grammar is as follows:<a name="line.167"></a>
+<FONT color="green">168</FONT>     * &lt;p&gt;<a name="line.168"></a>
+<FONT color="green">169</FONT>     * &lt;pre&gt;<a name="line.169"></a>
+<FONT color="green">170</FONT>     * &amp;lt;!ELEMENT object (object|array|collection|list|byte|boolean|char|double|float|int|long|short|string)*&amp;gt;<a name="line.170"></a>
+<FONT color="green">171</FONT>     * &amp;lt;!ATTLIST object<a name="line.171"></a>
+<FONT color="green">172</FONT>     *   class CDATA #REQUIRED<a name="line.172"></a>
+<FONT color="green">173</FONT>     *   null (true|false) "false"&amp;gt;<a name="line.173"></a>
+<FONT color="green">174</FONT>     *<a name="line.174"></a>
+<FONT color="green">175</FONT>     * &amp;lt;!ELEMENT byte EMPTY&amp;gt;<a name="line.175"></a>
+<FONT color="green">176</FONT>     * &amp;lt;!ATTLIST byte value CDATA #REQUIRED&amp;gt;<a name="line.176"></a>
+<FONT color="green">177</FONT>     *<a name="line.177"></a>
+<FONT color="green">178</FONT>     * &amp;lt;!ELEMENT boolean EMPTY&amp;gt;<a name="line.178"></a>
+<FONT color="green">179</FONT>     * &amp;lt;!ATTLIST boolean value (true|false) #REQUIRED&amp;gt;<a name="line.179"></a>
+<FONT color="green">180</FONT>     *<a name="line.180"></a>
+<FONT color="green">181</FONT>     * &amp;lt;!ELEMENT char EMPTY&amp;gt;<a name="line.181"></a>
+<FONT color="green">182</FONT>     * &amp;lt;!ATTLIST char value CDATA #REQUIRED&amp;gt;<a name="line.182"></a>
+<FONT color="green">183</FONT>     *<a name="line.183"></a>
+<FONT color="green">184</FONT>     * &amp;lt;!ELEMENT double EMPTY&amp;gt;<a name="line.184"></a>
+<FONT color="green">185</FONT>     * &amp;lt;!ATTLIST double value CDATA #REQUIRED&amp;gt;<a name="line.185"></a>
+<FONT color="green">186</FONT>     *<a name="line.186"></a>
+<FONT color="green">187</FONT>     * &amp;lt;!ELEMENT float EMPTY&amp;gt;<a name="line.187"></a>
+<FONT color="green">188</FONT>     * &amp;lt;!ATTLIST float value CDATA #REQUIRED&amp;gt;<a name="line.188"></a>
+<FONT color="green">189</FONT>     *<a name="line.189"></a>
+<FONT color="green">190</FONT>     * &amp;lt;!ELEMENT int EMPTY&amp;gt;<a name="line.190"></a>
+<FONT color="green">191</FONT>     * &amp;lt;!ATTLIST int value CDATA #REQUIRED&amp;gt;<a name="line.191"></a>
+<FONT color="green">192</FONT>     *<a name="line.192"></a>
+<FONT color="green">193</FONT>     * &amp;lt;!ELEMENT long EMPTY&amp;gt;<a name="line.193"></a>
+<FONT color="green">194</FONT>     * &amp;lt;!ATTLIST long value CDATA #REQUIRED&amp;gt;<a name="line.194"></a>
+<FONT color="green">195</FONT>     *<a name="line.195"></a>
+<FONT color="green">196</FONT>     * &amp;lt;!ELEMENT short EMPTY&amp;gt;<a name="line.196"></a>
+<FONT color="green">197</FONT>     * &amp;lt;!ATTLIST short value CDATA #REQUIRED&amp;gt;<a name="line.197"></a>
+<FONT color="green">198</FONT>     *<a name="line.198"></a>
+<FONT color="green">199</FONT>     * &amp;lt;!ELEMENT string EMPTY&amp;gt;<a name="line.199"></a>
+<FONT color="green">200</FONT>     * &amp;lt;!ATTLIST string value CDATA #REQUIRED&amp;gt;<a name="line.200"></a>
+<FONT color="green">201</FONT>     * &lt;/pre&gt;<a name="line.201"></a>
+<FONT color="green">202</FONT>     * &lt;p&gt;<a name="line.202"></a>
+<FONT color="green">203</FONT>     * This class can also be used as a base class for {@link org.xml.sax.ContentHandler}s<a name="line.203"></a>
+<FONT color="green">204</FONT>     * that include JOCL as part of their grammar.  Simply extend this class, and override the<a name="line.204"></a>
+<FONT color="green">205</FONT>     * {@link #startElement},<a name="line.205"></a>
+<FONT color="green">206</FONT>     * {@link #characters},<a name="line.206"></a>
+<FONT color="green">207</FONT>     * and {@link #endElement} methods to handle<a name="line.207"></a>
+<FONT color="green">208</FONT>     * your tags, and invoke the method of the parent class (i.e., &lt;tt&gt;super.&lt;i&gt;XXX&lt;/i&gt;&lt;/tt&gt; for<a name="line.208"></a>
+<FONT color="green">209</FONT>     * elements and data that you don't handle.<a name="line.209"></a>
+<FONT color="green">210</FONT>     * &lt;p&gt;<a name="line.210"></a>
+<FONT color="green">211</FONT>     * A number of static methods are available for simply reading a list of objects from<a name="line.211"></a>
+<FONT color="green">212</FONT>     * a {@link InputStream}, {@link Reader} or {@link InputSource}.<a name="line.212"></a>
+<FONT color="green">213</FONT>     * &lt;p&gt;<a name="line.213"></a>
+<FONT color="green">214</FONT>     * &lt;b&gt;Note that this class is not synchronized.&lt;/b&gt;<a name="line.214"></a>
+<FONT color="green">215</FONT>     * &lt;p&gt;<a name="line.215"></a>
+<FONT color="green">216</FONT>     * @author Rodney Waldhoff<a name="line.216"></a>
+<FONT color="green">217</FONT>     * @version $Revision: 883416 $ $Date: 2009-11-23 12:12:14 -0500 (Mon, 23 Nov 2009) $<a name="line.217"></a>
+<FONT color="green">218</FONT>     */<a name="line.218"></a>
+<FONT color="green">219</FONT>    public class JOCLContentHandler extends DefaultHandler {<a name="line.219"></a>
+<FONT color="green">220</FONT>    <a name="line.220"></a>
+<FONT color="green">221</FONT>        //--- Static Methods ---------------------------------------------<a name="line.221"></a>
+<FONT color="green">222</FONT>        /**<a name="line.222"></a>
+<FONT color="green">223</FONT>         * A simple tester method.  Reads a JOCL document from standard in<a name="line.223"></a>
+<FONT color="green">224</FONT>         * and prints a list of the objects created to standard out.<a name="line.224"></a>
+<FONT color="green">225</FONT>         * (Use the &lt;tt&gt;org.xml.sax.driver&lt;/tt&gt; system property to specify<a name="line.225"></a>
+<FONT color="green">226</FONT>         * an {@link XMLReader}.<a name="line.226"></a>
+<FONT color="green">227</FONT>         */<a name="line.227"></a>
+<FONT color="green">228</FONT>        public static void main(String[] args) throws Exception {<a name="line.228"></a>
+<FONT color="green">229</FONT>            JOCLContentHandler jocl = JOCLContentHandler.parse(System.in,null);<a name="line.229"></a>
+<FONT color="green">230</FONT>            for(int i=0;i&lt;jocl.size();i++) {<a name="line.230"></a>
+<FONT color="green">231</FONT>                System.out.println("&lt;" + jocl.getType(i) + "&gt;\t" + jocl.getValue(i));<a name="line.231"></a>
+<FONT color="green">232</FONT>            }<a name="line.232"></a>
+<FONT color="green">233</FONT>        }<a name="line.233"></a>
+<FONT color="green">234</FONT>    <a name="line.234"></a>
+<FONT color="green">235</FONT>        /**<a name="line.235"></a>
+<FONT color="green">236</FONT>         * Parses a JOCL document from the specified file, using the<a name="line.236"></a>
+<FONT color="green">237</FONT>         * {@link XMLReader} specified by the &lt;tt&gt;org.xml.sax.driver&lt;/tt&gt;<a name="line.237"></a>
+<FONT color="green">238</FONT>         * property.<a name="line.238"></a>
+<FONT color="green">239</FONT>         * The returned {@link JOCLContentHandler} will contain the<a name="line.239"></a>
+<FONT color="green">240</FONT>         * list of objects described by the file.<a name="line.240"></a>
+<FONT color="green">241</FONT>         * @param f a {@link File} containing the JOCL document<a name="line.241"></a>
+<FONT color="green">242</FONT>         * @return a {@link JOCLContentHandler} containing the list of objects described by the JOCL document<a name="line.242"></a>
+<FONT color="green">243</FONT>         */<a name="line.243"></a>
+<FONT color="green">244</FONT>        public static JOCLContentHandler parse(File f) throws SAXException, FileNotFoundException, IOException {<a name="line.244"></a>
+<FONT color="green">245</FONT>            return JOCLContentHandler.parse(new FileInputStream(f),null);<a name="line.245"></a>
+<FONT color="green">246</FONT>        }<a name="line.246"></a>
+<FONT color="green">247</FONT>    <a name="line.247"></a>
+<FONT color="green">248</FONT>        /**<a name="line.248"></a>
+<FONT color="green">249</FONT>         * Parses a JOCL document from the specified {@link Reader}, using the<a name="line.249"></a>
+<FONT color="green">250</FONT>         * {@link XMLReader} specified by the &lt;tt&gt;org.xml.sax.driver&lt;/tt&gt;<a name="line.250"></a>
+<FONT color="green">251</FONT>         * property.<a name="line.251"></a>
+<FONT color="green">252</FONT>         * The returned {@link JOCLContentHandler} will contain the<a name="line.252"></a>
+<FONT color="green">253</FONT>         * list of objects described by the file.<a name="line.253"></a>
+<FONT color="green">254</FONT>         * @param in a {@link Reader} containing the JOCL document<a name="line.254"></a>
+<FONT color="green">255</FONT>         * @return a {@link JOCLContentHandler} containing the list of objects described by the JOCL document<a name="line.255"></a>
+<FONT color="green">256</FONT>         */<a name="line.256"></a>
+<FONT color="green">257</FONT>        public static JOCLContentHandler parse(Reader in) throws SAXException, IOException {<a name="line.257"></a>
+<FONT color="green">258</FONT>            return JOCLContentHandler.parse(new InputSource(in),null);<a name="line.258"></a>
+<FONT color="green">259</FONT>        }<a name="line.259"></a>
+<FONT color="green">260</FONT>    <a name="line.260"></a>
+<FONT color="green">261</FONT>        /**<a name="line.261"></a>
+<FONT color="green">262</FONT>         * Parses a JOCL document from the specified {@link InputStream}, using the<a name="line.262"></a>
+<FONT color="green">263</FONT>         * {@link XMLReader} specified by the &lt;tt&gt;org.xml.sax.driver&lt;/tt&gt;<a name="line.263"></a>
+<FONT color="green">264</FONT>         * property.<a name="line.264"></a>
+<FONT color="green">265</FONT>         * The returned {@link JOCLContentHandler} will contain the<a name="line.265"></a>
+<FONT color="green">266</FONT>         * list of objects described by the file.<a name="line.266"></a>
+<FONT color="green">267</FONT>         * @param in a {@link InputStream} containing the JOCL document<a name="line.267"></a>
+<FONT color="green">268</FONT>         * @return a {@link JOCLContentHandler} containing the list of objects described by the JOCL document<a name="line.268"></a>
+<FONT color="green">269</FONT>         */<a name="line.269"></a>
+<FONT color="green">270</FONT>        public static JOCLContentHandler parse(InputStream in) throws SAXException, IOException {<a name="line.270"></a>
+<FONT color="green">271</FONT>            return JOCLContentHandler.parse(new InputSource(in),null);<a name="line.271"></a>
+<FONT color="green">272</FONT>        }<a name="line.272"></a>
+<FONT color="green">273</FONT>    <a name="line.273"></a>
+<FONT color="green">274</FONT>        /**<a name="line.274"></a>
+<FONT color="green">275</FONT>         * Parses a JOCL document from the specified {@link InputSource}, using thethe<a name="line.275"></a>
+<FONT color="green">276</FONT>         * {@link XMLReader} specified by the &lt;tt&gt;org.xml.sax.driver&lt;/tt&gt;<a name="line.276"></a>
+<FONT color="green">277</FONT>         * property.<a name="line.277"></a>
+<FONT color="green">278</FONT>         * The returned {@link JOCLContentHandler} will contain the<a name="line.278"></a>
+<FONT color="green">279</FONT>         * list of objects described by the file.<a name="line.279"></a>
+<FONT color="green">280</FONT>         * @param in a {@link InputSource} containing the JOCL document<a name="line.280"></a>
+<FONT color="green">281</FONT>         * @return a {@link JOCLContentHandler} containing the list of objects described by the JOCL document<a name="line.281"></a>
+<FONT color="green">282</FONT>         */<a name="line.282"></a>
+<FONT color="green">283</FONT>        public static JOCLContentHandler parse(InputSource in) throws SAXException, IOException {<a name="line.283"></a>
+<FONT color="green">284</FONT>            return JOCLContentHandler.parse(in,null);<a name="line.284"></a>
+<FONT color="green">285</FONT>        }<a name="line.285"></a>
+<FONT color="green">286</FONT>    <a name="line.286"></a>
+<FONT color="green">287</FONT>        /**<a name="line.287"></a>
+<FONT color="green">288</FONT>         * Parses a JOCL document from the specified file, using the<a name="line.288"></a>
+<FONT color="green">289</FONT>         * {@link XMLReader} specified by the &lt;tt&gt;org.xml.sax.driver&lt;/tt&gt;<a name="line.289"></a>
+<FONT color="green">290</FONT>         * property.<a name="line.290"></a>
+<FONT color="green">291</FONT>         * The returned {@link JOCLContentHandler} will contain the<a name="line.291"></a>
+<FONT color="green">292</FONT>         * list of objects described by the file.<a name="line.292"></a>
+<FONT color="green">293</FONT>         * @param f a {@link File} containing the JOCL document<a name="line.293"></a>
+<FONT color="green">294</FONT>         * @param reader the {@link XMLReader} to use to parse the file<a name="line.294"></a>
+<FONT color="green">295</FONT>         * @return a {@link JOCLContentHandler} containing the list of objects described by the JOCL document<a name="line.295"></a>
+<FONT color="green">296</FONT>         */<a name="line.296"></a>
+<FONT color="green">297</FONT>        public static JOCLContentHandler parse(File f, XMLReader reader) throws SAXException, FileNotFoundException, IOException {<a name="line.297"></a>
+<FONT color="green">298</FONT>            return JOCLContentHandler.parse(new FileInputStream(f),reader);<a name="line.298"></a>
+<FONT color="green">299</FONT>        }<a name="line.299"></a>
+<FONT color="green">300</FONT>    <a name="line.300"></a>
+<FONT color="green">301</FONT>        /**<a name="line.301"></a>
+<FONT color="green">302</FONT>         * Parses a JOCL document from the specified {@link Reader}, using the specified<a name="line.302"></a>
+<FONT color="green">303</FONT>         * {@link XMLReader}.<a name="line.303"></a>
+<FONT color="green">304</FONT>         * The returned {@link JOCLContentHandler} will contain the<a name="line.304"></a>
+<FONT color="green">305</FONT>         * list of objects described by the file.<a name="line.305"></a>
+<FONT color="green">306</FONT>         * @param in a {@link Reader} containing the JOCL document<a name="line.306"></a>
+<FONT color="green">307</FONT>         * @param reader the {@link XMLReader} to use to parse the document<a name="line.307"></a>
+<FONT color="green">308</FONT>         * @return a {@link JOCLContentHandler} containing the list of objects described by the JOCL document<a name="line.308"></a>
+<FONT color="green">309</FONT>         */<a name="line.309"></a>
+<FONT color="green">310</FONT>        public static JOCLContentHandler parse(Reader in, XMLReader reader) throws SAXException, IOException {<a name="line.310"></a>
+<FONT color="green">311</FONT>            return JOCLContentHandler.parse(new InputSource(in),reader);<a name="line.311"></a>
+<FONT color="green">312</FONT>        }<a name="line.312"></a>
+<FONT color="green">313</FONT>    <a name="line.313"></a>
+<FONT color="green">314</FONT>        /**<a name="line.314"></a>
+<FONT color="green">315</FONT>         * Parses a JOCL document from the specified {@link InputStream}, using the specified<a name="line.315"></a>
+<FONT color="green">316</FONT>         * {@link XMLReader}.<a name="line.316"></a>
+<FONT color="green">317</FONT>         * The returned {@link JOCLContentHandler} will contain the<a name="line.317"></a>
+<FONT color="green">318</FONT>         * list of objects described by the file.<a name="line.318"></a>
+<FONT color="green">319</FONT>         * @param in a {@link InputStream} containing the JOCL document<a name="line.319"></a>
+<FONT color="green">320</FONT>         * @param reader the {@link XMLReader} to use to parse the document<a name="line.320"></a>
+<FONT color="green">321</FONT>         * @return a {@link JOCLContentHandler} containing the list of objects described by the JOCL document<a name="line.321"></a>
+<FONT color="green">322</FONT>         */<a name="line.322"></a>
+<FONT color="green">323</FONT>        public static JOCLContentHandler parse(InputStream in, XMLReader reader) throws SAXException, IOException {<a name="line.323"></a>
+<FONT color="green">324</FONT>            return JOCLContentHandler.parse(new InputSource(in),reader);<a name="line.324"></a>
+<FONT color="green">325</FONT>        }<a name="line.325"></a>
+<FONT color="green">326</FONT>    <a name="line.326"></a>
+<FONT color="green">327</FONT>        /**<a name="line.327"></a>
+<FONT color="green">328</FONT>         * Parses a JOCL document from the specified {@link InputSource}, using the<a name="line.328"></a>
+<FONT color="green">329</FONT>         * specified {@link XMLReader}.<a name="line.329"></a>
+<FONT color="green">330</FONT>         * The returned {@link JOCLContentHandler} will contain the<a name="line.330"></a>
+<FONT color="green">331</FONT>         * list of objects described by the file.<a name="line.331"></a>
+<FONT color="green">332</FONT>         * @param in a {@link InputSource} containing the JOCL document<a name="line.332"></a>
+<FONT color="green">333</FONT>         * @param reader the {@link XMLReader} to use to parse the document<a name="line.333"></a>
+<FONT color="green">334</FONT>         * @return a {@link JOCLContentHandler} containing the list of objects described by the JOCL document<a name="line.334"></a>
+<FONT color="green">335</FONT>         */<a name="line.335"></a>
+<FONT color="green">336</FONT>        public static JOCLContentHandler parse(InputSource in, XMLReader reader) throws SAXException, IOException {<a name="line.336"></a>
+<FONT color="green">337</FONT>            JOCLContentHandler jocl = new JOCLContentHandler();<a name="line.337"></a>
+<FONT color="green">338</FONT>            if(null == reader) {<a name="line.338"></a>
+<FONT color="green">339</FONT>                reader = XMLReaderFactory.createXMLReader();<a name="line.339"></a>
+<FONT color="green">340</FONT>            }<a name="line.340"></a>
+<FONT color="green">341</FONT>            reader.setContentHandler(jocl);<a name="line.341"></a>
+<FONT color="green">342</FONT>            reader.parse(in);<a name="line.342"></a>
+<FONT color="green">343</FONT>            return jocl;<a name="line.343"></a>
+<FONT color="green">344</FONT>        }<a name="line.344"></a>
+<FONT color="green">345</FONT>    <a name="line.345"></a>
+<FONT color="green">346</FONT>        //--- Construtors ------------------------------------------------<a name="line.346"></a>
+<FONT color="green">347</FONT>    <a name="line.347"></a>
+<FONT color="green">348</FONT>        /**<a name="line.348"></a>
+<FONT color="green">349</FONT>         * Equivalent to {@link #JOCLContentHandler(boolean,boolean,boolean,boolean) JOCLContentHandler(true,true,true,true)}.<a name="line.349"></a>
+<FONT color="green">350</FONT>         */<a name="line.350"></a>
+<FONT color="green">351</FONT>        public JOCLContentHandler() {<a name="line.351"></a>
+<FONT color="green">352</FONT>            this(true,true,true,true);<a name="line.352"></a>
+<FONT color="green">353</FONT>        }<a name="line.353"></a>
+<FONT color="green">354</FONT>    <a name="line.354"></a>
+<FONT color="green">355</FONT>        /**<a name="line.355"></a>
+<FONT color="green">356</FONT>         * Construct a JOCLContentHandler.<a name="line.356"></a>
+<FONT color="green">357</FONT>         * @param emptyEltNS when &lt;tt&gt;true&lt;/tt&gt; I should assume any element with an empty namespace is within the JOCL namespace<a name="line.357"></a>
+<FONT color="green">358</FONT>         * @param joclEltPrefix when &lt;tt&gt;true&lt;/tt&gt; I should assume any element who's prefix is &lt;tt&gt;jocl:&lt;/tt&gt; and who's namespace is empty is within the JOCL namespace<a name="line.358"></a>
+<FONT color="green">359</FONT>         * @param emptyAttrNS when &lt;tt&gt;true&lt;/tt&gt; I should assume any attribute with an empty namespace is within the JOCL namespace<a name="line.359"></a>
+<FONT color="green">360</FONT>         * @param joclAttrPrefix when &lt;tt&gt;true&lt;/tt&gt; I should assume any attribute who's prefix is &lt;tt&gt;jocl:&lt;/tt&gt; and who's namespace is empty is within the JOCL namespace<a name="line.360"></a>
+<FONT color="green">361</FONT>         */<a name="line.361"></a>
+<FONT color="green">362</FONT>        public JOCLContentHandler(boolean emptyEltNS, boolean joclEltPrefix, boolean emptyAttrNS, boolean joclAttrPrefix) {<a name="line.362"></a>
+<FONT color="green">363</FONT>            _acceptEmptyNamespaceForElements = emptyEltNS;<a name="line.363"></a>
+<FONT color="green">364</FONT>            _acceptJoclPrefixForElements = joclEltPrefix;<a name="line.364"></a>
+<FONT color="green">365</FONT>            _acceptEmptyNamespaceForAttributes = emptyAttrNS;<a name="line.365"></a>
+<FONT color="green">366</FONT>            _acceptJoclPrefixForAttributes = joclAttrPrefix;<a name="line.366"></a>
+<FONT color="green">367</FONT>        }<a name="line.367"></a>
+<FONT color="green">368</FONT>    <a name="line.368"></a>
+<FONT color="green">369</FONT>        //--- Public Methods - Accessing Objects -------------------------<a name="line.369"></a>
+<FONT color="green">370</FONT>    <a name="line.370"></a>
+<FONT color="green">371</FONT>        /**<a name="line.371"></a>
+<FONT color="green">372</FONT>         * Returns the number of values and types in my list.<a name="line.372"></a>
+<FONT color="green">373</FONT>         * @return the number of values and types in my list.<a name="line.373"></a>
+<FONT color="green">374</FONT>         */<a name="line.374"></a>
+<FONT color="green">375</FONT>        public int size() {<a name="line.375"></a>
+<FONT color="green">376</FONT>            return _typeList.size();<a name="line.376"></a>
+<FONT color="green">377</FONT>        }<a name="line.377"></a>
+<FONT color="green">378</FONT>    <a name="line.378"></a>
+<FONT color="green">379</FONT>        /**<a name="line.379"></a>
+<FONT color="green">380</FONT>         * Clears all the values and types in my list.<a name="line.380"></a>
+<FONT color="green">381</FONT>         */<a name="line.381"></a>
+<FONT color="green">382</FONT>        public void clear() {<a name="line.382"></a>
+<FONT color="green">383</FONT>            _typeList = new ArrayList();<a name="line.383"></a>
+<FONT color="green">384</FONT>            _valueList = new ArrayList();<a name="line.384"></a>
+<FONT color="green">385</FONT>        }<a name="line.385"></a>
+<FONT color="green">386</FONT>    <a name="line.386"></a>
+<FONT color="green">387</FONT>        /**<a name="line.387"></a>
+<FONT color="green">388</FONT>         * Removes the value/type pair at the specified index.<a name="line.388"></a>
+<FONT color="green">389</FONT>         */<a name="line.389"></a>
+<FONT color="green">390</FONT>        public void clear(int i) {<a name="line.390"></a>
+<FONT color="green">391</FONT>            _typeList.remove(i);<a name="line.391"></a>
+<FONT color="green">392</FONT>            _valueList.remove(i);<a name="line.392"></a>
+<FONT color="green">393</FONT>        }<a name="line.393"></a>
+<FONT color="green">394</FONT>    <a name="line.394"></a>
+<FONT color="green">395</FONT>        /**<a name="line.395"></a>
+<FONT color="green">396</FONT>         * Returns the type of the object at the specified index.<a name="line.396"></a>
+<FONT color="green">397</FONT>         */<a name="line.397"></a>
+<FONT color="green">398</FONT>        public Class getType(int i) {<a name="line.398"></a>
+<FONT color="green">399</FONT>            return(Class)(_typeList.get(i));<a name="line.399"></a>
+<FONT color="green">400</FONT>        }<a name="line.400"></a>
+<FONT color="green">401</FONT>    <a name="line.401"></a>
+<FONT color="green">402</FONT>        /**<a name="line.402"></a>
+<FONT color="green">403</FONT>         * Returns the value of the object at the specified index.<a name="line.403"></a>
+<FONT color="green">404</FONT>         */<a name="line.404"></a>
+<FONT color="green">405</FONT>        public Object getValue(int i) {<a name="line.405"></a>
+<FONT color="green">406</FONT>            return _valueList.get(i);<a name="line.406"></a>
+<FONT color="green">407</FONT>        }<a name="line.407"></a>
+<FONT color="green">408</FONT>    <a name="line.408"></a>
+<FONT color="green">409</FONT>        /**<a name="line.409"></a>
+<FONT color="green">410</FONT>         * Returns a shallow copy of my list of values.<a name="line.410"></a>
+<FONT color="green">411</FONT>         */<a name="line.411"></a>
+<FONT color="green">412</FONT>        public Object[] getValueArray() {<a name="line.412"></a>
+<FONT color="green">413</FONT>            return _valueList.toArray();<a name="line.413"></a>
+<FONT color="green">414</FONT>        }<a name="line.414"></a>
+<FONT color="green">415</FONT>    <a name="line.415"></a>
+<FONT color="green">416</FONT>        /**<a name="line.416"></a>
+<FONT color="green">417</FONT>         * Returns a shallow copy of my list of types.<a name="line.417"></a>
+<FONT color="green">418</FONT>         */<a name="line.418"></a>
+<FONT color="green">419</FONT>        public Object[] getTypeArray() {<a name="line.419"></a>
+<FONT color="green">420</FONT>            return _typeList.toArray();<a name="line.420"></a>
+<FONT color="green">421</FONT>        }<a name="line.421"></a>
+<FONT color="green">422</FONT>    <a name="line.422"></a>
+<FONT color="green">423</FONT>        //--- Public Methods - DocumentHandler ---------------------------<a name="line.423"></a>
+<FONT color="green">424</FONT>    <a name="line.424"></a>
+<FONT color="green">425</FONT>        public void startElement(String uri, String localName, String qname, Attributes attr) throws SAXException {<a name="line.425"></a>
+<FONT color="green">426</FONT>            try {<a name="line.426"></a>
+<FONT color="green">427</FONT>                if(isJoclNamespace(uri,localName,qname)) {<a name="line.427"></a>
+<FONT color="green">428</FONT>                    if(ELT_OBJECT.equals(localName)) {<a name="line.428"></a>
+<FONT color="green">429</FONT>                        String cname = getAttributeValue(ATT_CLASS,attr);<a name="line.429"></a>
+<FONT color="green">430</FONT>                        String isnullstr = getAttributeValue(ATT_ISNULL,attr,"false");<a name="line.430"></a>
+<FONT color="green">431</FONT>                        boolean isnull = ("true".equalsIgnoreCase(isnullstr) || "yes".equalsIgnoreCase(isnullstr));<a name="line.431"></a>
+<FONT color="green">432</FONT>                        _cur = new ConstructorDetails(cname,_cur,isnull);<a name="line.432"></a>
+<FONT color="green">433</FONT>                    } else if(ELT_ARRAY.equals(localName)) {<a name="line.433"></a>
+<FONT color="green">434</FONT>                        _cur = new ConstructorDetails(Object[].class,_cur,false,true);<a name="line.434"></a>
+<FONT color="green">435</FONT>                    } else if(ELT_COLLECTION.equals(localName)) {<a name="line.435"></a>
+<FONT color="green">436</FONT>                        _cur = new ConstructorDetails(Collection.class,_cur,false,true);<a name="line.436"></a>
+<FONT color="green">437</FONT>                    } else if(ELT_LIST.equals(localName)) {<a name="line.437"></a>
+<FONT color="green">438</FONT>                        _cur = new ConstructorDetails(List.class,_cur,false,true);<a name="line.438"></a>
+<FONT color="green">439</FONT>                    } else if(ELT_BOOLEAN.equals(localName)) {<a name="line.439"></a>
+<FONT color="green">440</FONT>                        String valstr = getAttributeValue(ATT_VALUE,attr,"false");<a name="line.440"></a>
+<FONT color="green">441</FONT>                        boolean val = ("true".equalsIgnoreCase(valstr) || "yes".equalsIgnoreCase(valstr));<a name="line.441"></a>
+<FONT color="green">442</FONT>                        addObject(Boolean.TYPE,Boolean.valueOf(val));<a name="line.442"></a>
+<FONT color="green">443</FONT>                    } else if(ELT_BYTE.equals(localName)) {<a name="line.443"></a>
+<FONT color="green">444</FONT>                        byte val = Byte.parseByte(getAttributeValue(ATT_VALUE,attr,"0"));<a name="line.444"></a>
+<FONT color="green">445</FONT>                        addObject(Byte.TYPE,new Byte(val));<a name="line.445"></a>
+<FONT color="green">446</FONT>                    } else if(ELT_CHAR.equals(localName)) {<a name="line.446"></a>
+<FONT color="green">447</FONT>                        char val = '\u0000';<a name="line.447"></a>
+<FONT color="green">448</FONT>                        String valstr = getAttributeValue(ATT_VALUE,attr);<a name="line.448"></a>
+<FONT color="green">449</FONT>                        if(null == valstr) {<a name="line.449"></a>
+<FONT color="green">450</FONT>                            val = '\u0000';<a name="line.450"></a>
+<FONT color="green">451</FONT>                        } else if(valstr.length() &gt; 1) {<a name="line.451"></a>
+<FONT color="green">452</FONT>                            throw new SAXException("if present, char value must be exactly one character long");<a name="line.452"></a>
+<FONT color="green">453</FONT>                        } else if(valstr.length()==1) {<a name="line.453"></a>
+<FONT color="green">454</FONT>                            val = valstr.charAt(0);<a name="line.454"></a>
+<FONT color="green">455</FONT>                        } else if(valstr.length()==0) {<a name="line.455"></a>
+<FONT color="green">456</FONT>                            throw new SAXException("if present, char value must be exactly one character long");<a name="line.456"></a>
+<FONT color="green">457</FONT>                        }<a name="line.457"></a>
+<FONT color="green">458</FONT>                        addObject(Character.TYPE,new Character(val));<a name="line.458"></a>
+<FONT color="green">459</FONT>                    } else if(ELT_DOUBLE.equals(localName)) {<a name="line.459"></a>
+<FONT color="green">460</FONT>                        double val = Double.parseDouble(getAttributeValue(ATT_VALUE,attr,"0"));<a name="line.460"></a>
+<FONT color="green">461</FONT>                        addObject(Double.TYPE,new Double(val));<a name="line.461"></a>
+<FONT color="green">462</FONT>                    } else if(ELT_FLOAT.equals(localName)) {<a name="line.462"></a>
+<FONT color="green">463</FONT>                        float val = Float.parseFloat(getAttributeValue(ATT_VALUE,attr,"0"));<a name="line.463"></a>
+<FONT color="green">464</FONT>                        addObject(Float.TYPE,new Float(val));<a name="line.464"></a>
+<FONT color="green">465</FONT>                    } else if(ELT_INT.equals(localName)) {<a name="line.465"></a>
+<FONT color="green">466</FONT>                        int val = Integer.parseInt(getAttributeValue(ATT_VALUE,attr,"0"));<a name="line.466"></a>
+<FONT color="green">467</FONT>                        addObject(Integer.TYPE,new Integer(val));<a name="line.467"></a>
+<FONT color="green">468</FONT>                    } else if(ELT_LONG.equals(localName)) {<a name="line.468"></a>
+<FONT color="green">469</FONT>                        long val = Long.parseLong(getAttributeValue(ATT_VALUE,attr,"0"));<a name="line.469"></a>
+<FONT color="green">470</FONT>                        addObject(Long.TYPE,new Long(val));<a name="line.470"></a>
+<FONT color="green">471</FONT>                    } else if(ELT_SHORT.equals(localName)) {<a name="line.471"></a>
+<FONT color="green">472</FONT>                        short val = Short.parseShort(getAttributeValue(ATT_VALUE,attr,"0"));<a name="line.472"></a>
+<FONT color="green">473</FONT>                        addObject(Short.TYPE,new Short(val));<a name="line.473"></a>
+<FONT color="green">474</FONT>                    } else if(ELT_STRING.equals(localName)) {<a name="line.474"></a>
+<FONT color="green">475</FONT>                        String val = getAttributeValue(ATT_VALUE,attr);<a name="line.475"></a>
+<FONT color="green">476</FONT>                        addObject("".getClass(),val);<a name="line.476"></a>
+<FONT color="green">477</FONT>                    } else {<a name="line.477"></a>
+<FONT color="green">478</FONT>                        // unrecognized JOCL element warning?<a name="line.478"></a>
+<FONT color="green">479</FONT>                    }<a name="line.479"></a>
+<FONT color="green">480</FONT>                }<a name="line.480"></a>
+<FONT color="green">481</FONT>            } catch(NumberFormatException e) {<a name="line.481"></a>
+<FONT color="green">482</FONT>                throw new SAXException(e);<a name="line.482"></a>
+<FONT color="green">483</FONT>            } catch(ClassNotFoundException e) {<a name="line.483"></a>
+<FONT color="green">484</FONT>                throw new SAXException(e);<a name="line.484"></a>
+<FONT color="green">485</FONT>            }<a name="line.485"></a>
+<FONT color="green">486</FONT>        }<a name="line.486"></a>
+<FONT color="green">487</FONT>    <a name="line.487"></a>
+<FONT color="green">488</FONT>        public void endElement(String uri, String localName, String qname) throws SAXException {<a name="line.488"></a>
+<FONT color="green">489</FONT>            try {<a name="line.489"></a>
+<FONT color="green">490</FONT>                if(isJoclNamespace(uri,localName,qname)) {<a name="line.490"></a>
+<FONT color="green">491</FONT>                    if(ELT_OBJECT.equals(localName) || ELT_ARRAY.equals(localName)<a name="line.491"></a>
+<FONT color="green">492</FONT>                        || ELT_COLLECTION.equals(localName) || ELT_LIST.equals(localName)) {<a name="line.492"></a>
+<FONT color="green">493</FONT>                        ConstructorDetails temp = _cur;<a name="line.493"></a>
+<FONT color="green">494</FONT>                        _cur = _cur.getParent();<a name="line.494"></a>
+<FONT color="green">495</FONT>                        if(null == _cur) {<a name="line.495"></a>
+<FONT color="green">496</FONT>                            _typeList.add(temp.getType());<a name="line.496"></a>
+<FONT color="green">497</FONT>                            _valueList.add(temp.createObject());<a name="line.497"></a>
+<FONT color="green">498</FONT>                        } else {<a name="line.498"></a>
+<FONT color="green">499</FONT>                            _cur.addArgument(temp.getType(),temp.createObject());<a name="line.499"></a>
+<FONT color="green">500</FONT>                        }<a name="line.500"></a>
+<FONT color="green">501</FONT>                    } <a name="line.501"></a>
+<FONT color="green">502</FONT>                    /* <a name="line.502"></a>
+<FONT color="green">503</FONT>                    else if(ELT_BOOLEAN.equals(localName)) {<a name="line.503"></a>
+<FONT color="green">504</FONT>                        // nothing to do here<a name="line.504"></a>
+<FONT color="green">505</FONT>                    } else if(ELT_BYTE.equals(localName)) {<a name="line.505"></a>
+<FONT color="green">506</FONT>                        // nothing to do here<a name="line.506"></a>
+<FONT color="green">507</FONT>                    } else if(ELT_CHAR.equals(localName)) {<a name="line.507"></a>
+<FONT color="green">508</FONT>                        // nothing to do here<a name="line.508"></a>
+<FONT color="green">509</FONT>                    } else if(ELT_DOUBLE.equals(localName)) {<a name="line.509"></a>
+<FONT color="green">510</FONT>                        // nothing to do here<a name="line.510"></a>
+<FONT color="green">511</FONT>                    } else if(ELT_FLOAT.equals(localName)) {<a name="line.511"></a>
+<FONT color="green">512</FONT>                        // nothing to do here<a name="line.512"></a>
+<FONT color="green">513</FONT>                    } else if(ELT_INT.equals(localName)) {<a name="line.513"></a>
+<FONT color="green">514</FONT>                        // nothing to do here<a name="line.514"></a>
+<FONT color="green">515</FONT>                    } else if(ELT_LONG.equals(localName)) {<a name="line.515"></a>
+<FONT color="green">516</FONT>                        // nothing to do here<a name="line.516"></a>
+<FONT color="green">517</FONT>                    } else if(ELT_SHORT.equals(localName)) {<a name="line.517"></a>
+<FONT color="green">518</FONT>                        // nothing to do here<a name="line.518"></a>
+<FONT color="green">519</FONT>                    } else if(ELT_STRING.equals(localName)) {<a name="line.519"></a>
+<FONT color="green">520</FONT>                        // nothing to do here<a name="line.520"></a>
+<FONT color="green">521</FONT>                    } else {<a name="line.521"></a>
+<FONT color="green">522</FONT>                        // unrecognized JOCL element warning?<a name="line.522"></a>
+<FONT color="green">523</FONT>                    }<a name="line.523"></a>
+<FONT color="green">524</FONT>                    */<a name="line.524"></a>
+<FONT color="green">525</FONT>                }<a name="line.525"></a>
+<FONT color="green">526</FONT>            } catch(Exception e) {<a name="line.526"></a>
+<FONT color="green">527</FONT>                throw new SAXException(e);<a name="line.527"></a>
+<FONT color="green">528</FONT>            }<a name="line.528"></a>
+<FONT color="green">529</FONT>        }<a name="line.529"></a>
+<FONT color="green">530</FONT>    <a name="line.530"></a>
+<FONT color="green">531</FONT>        public void setDocumentLocator(Locator locator) {<a name="line.531"></a>
+<FONT color="green">532</FONT>            _locator = locator;<a name="line.532"></a>
+<FONT color="green">533</FONT>        }<a name="line.533"></a>
+<FONT color="green">534</FONT>    <a name="line.534"></a>
+<FONT color="green">535</FONT>        //--- Protected Methods ------------------------------------------<a name="line.535"></a>
+<FONT color="green">536</FONT>    <a name="line.536"></a>
+<FONT color="green">537</FONT>        /**<a name="line.537"></a>
+<FONT color="green">538</FONT>         * Returns &lt;tt&gt;true&lt;/tt&gt; if the given attributes define an<a name="line.538"></a>
+<FONT color="green">539</FONT>         * element within the JOCL namespace (according to my current<a name="line.539"></a>
+<FONT color="green">540</FONT>         * configuration.)<a name="line.540"></a>
+<FONT color="green">541</FONT>         *<a name="line.541"></a>
+<FONT color="green">542</FONT>         * @see #_acceptEmptyNamespaceForElements<a name="line.542"></a>
+<FONT color="green">543</FONT>         * @see #_acceptJoclPrefixForElements<a name="line.543"></a>
+<FONT color="green">544</FONT>         */<a name="line.544"></a>
+<FONT color="green">545</FONT>        protected boolean isJoclNamespace(String uri, String localname, String qname) {<a name="line.545"></a>
+<FONT color="green">546</FONT>            if(JOCL_NAMESPACE_URI.equals(uri)) {<a name="line.546"></a>
+<FONT color="green">547</FONT>                return true;<a name="line.547"></a>
+<FONT color="green">548</FONT>            } else if(_acceptEmptyNamespaceForElements &amp;&amp; (null == uri || "".equals(uri))) {<a name="line.548"></a>
+<FONT color="green">549</FONT>                return true;<a name="line.549"></a>
+<FONT color="green">550</FONT>            } else if(_acceptJoclPrefixForElements &amp;&amp; (null == uri || "".equals(uri)) &amp;&amp; qname.startsWith(JOCL_PREFIX)) {<a name="line.550"></a>
+<FONT color="green">551</FONT>                return true;<a name="line.551"></a>
+<FONT color="green">552</FONT>            } else {<a name="line.552"></a>
+<FONT color="green">553</FONT>                return false;<a name="line.553"></a>
+<FONT color="green">554</FONT>            }<a name="line.554"></a>
+<FONT color="green">555</FONT>        }<a name="line.555"></a>
+<FONT color="green">556</FONT>    <a name="line.556"></a>
+<FONT color="green">557</FONT>        /**<a name="line.557"></a>
+<FONT color="green">558</FONT>         * Equivalent to {@link #getAttributeValue(java.lang.String,org.xml.sax.Attributes,java.lang.String) &lt;tt&gt;getAttributeValue(localname,attr,null)&lt;/tt&gt;}.<a name="line.558"></a>
+<FONT color="green">559</FONT>         */<a name="line.559"></a>
+<FONT color="green">560</FONT>        protected String getAttributeValue(String localname, Attributes attr) {<a name="line.560"></a>
+<FONT color="green">561</FONT>            return getAttributeValue(localname,attr,null);<a name="line.561"></a>
+<FONT color="green">562</FONT>        }<a name="line.562"></a>
+<FONT color="green">563</FONT>    <a name="line.563"></a>
+<FONT color="green">564</FONT>        /**<a name="line.564"></a>
+<FONT color="green">565</FONT>         * Returns the value of attribute with the given<a name="line.565"></a>
+<FONT color="green">566</FONT>         * &lt;tt&gt;&lt;i&gt;localname&lt;/i&gt;&lt;/tt&gt; within the JOCL<a name="line.566"></a>
+<FONT color="green">567</FONT>         * namespace from the given set of {@link Attributes}.<a name="line.567"></a>
+<FONT color="green">568</FONT>         * If no such attribute can be found, returns<a name="line.568"></a>
+<FONT color="green">569</FONT>         * &lt;tt&gt;&lt;i&gt;implied&lt;/i&gt;&lt;/tt&gt;.<a name="line.569"></a>
+<FONT color="green">570</FONT>         *<a name="line.570"></a>
+<FONT color="green">571</FONT>         * @param localname the unqualified name of the attribute to look for<a name="line.571"></a>
+<FONT color="green">572</FONT>         * @param attr      the Attributes in which to find the value<a name="line.572"></a>
+<FONT color="green">573</FONT>         * @param implied   the default value for the attribute<a name="line.573"></a>
+<FONT color="green">574</FONT>         * @return the value of attribute with the given<a name="line.574"></a>
+<FONT color="green">575</FONT>         *         &lt;tt&gt;&lt;i&gt;localname&lt;/i&gt;&lt;/tt&gt; within the JOCL<a name="line.575"></a>
+<FONT color="green">576</FONT>         *         namespace from the given set of {@link Attributes}.<a name="line.576"></a>
+<FONT color="green">577</FONT>         *         If no such attribute can be found, returns<a name="line.577"></a>
+<FONT color="green">578</FONT>         *         &lt;tt&gt;&lt;i&gt;implied&lt;/i&gt;&lt;/tt&gt;.<a name="line.578"></a>
+<FONT color="green">579</FONT>         */<a name="line.579"></a>
+<FONT color="green">580</FONT>        protected String getAttributeValue(String localname, Attributes attr, String implied) {<a name="line.580"></a>
+<FONT color="green">581</FONT>            String val = attr.getValue(JOCL_NAMESPACE_URI,localname);<a name="line.581"></a>
+<FONT color="green">582</FONT>            if(null == val &amp;&amp; _acceptEmptyNamespaceForAttributes) {<a name="line.582"></a>
+<FONT color="green">583</FONT>                val = attr.getValue("",localname);<a name="line.583"></a>
+<FONT color="green">584</FONT>            }<a name="line.584"></a>
+<FONT color="green">585</FONT>            if(null == val &amp;&amp; _acceptJoclPrefixForAttributes) {<a name="line.585"></a>
+<FONT color="green">586</FONT>                val = attr.getValue("",JOCL_PREFIX + localname);<a name="line.586"></a>
+<FONT color="green">587</FONT>            }<a name="line.587"></a>
+<FONT color="green">588</FONT>            return(null == val ? implied : val);<a name="line.588"></a>
+<FONT color="green">589</FONT>        }<a name="line.589"></a>
+<FONT color="green">590</FONT>    <a name="line.590"></a>
+<FONT color="green">591</FONT>        /**<a name="line.591"></a>
+<FONT color="green">592</FONT>         * Add the specified object either to my type/value list, or<a name="line.592"></a>
+<FONT color="green">593</FONT>         * as an argument to the object I'm currently constructing.<a name="line.593"></a>
+<FONT color="green">594</FONT>         */<a name="line.594"></a>
+<FONT color="green">595</FONT>        protected void addObject(Class type, Object val) {<a name="line.595"></a>
+<FONT color="green">596</FONT>            if(null == _cur) {<a name="line.596"></a>
+<FONT color="green">597</FONT>                _typeList.add(type);<a name="line.597"></a>
+<FONT color="green">598</FONT>                _valueList.add(val);<a name="line.598"></a>
+<FONT color="green">599</FONT>            } else {<a name="line.599"></a>
+<FONT color="green">600</FONT>                _cur.addArgument(type,val);<a name="line.600"></a>
+<FONT color="green">601</FONT>            }<a name="line.601"></a>
+<FONT color="green">602</FONT>        }<a name="line.602"></a>
+<FONT color="green">603</FONT>    <a name="line.603"></a>
+<FONT color="green">604</FONT>        //--- Protected Attributes ---------------------------------------<a name="line.604"></a>
+<FONT color="green">605</FONT>    <a name="line.605"></a>
+<FONT color="green">606</FONT>        /**<a name="line.606"></a>
+<FONT color="green">607</FONT>         * The JOCL namespace URI, &lt;tt&gt;http://apache.org/xml/xmlns/jakarta/commons/jocl&lt;/tt&gt;.<a name="line.607"></a>
+<FONT color="green">608</FONT>         */<a name="line.608"></a>
+<FONT color="green">609</FONT>        public static final String JOCL_NAMESPACE_URI = "http://apache.org/xml/xmlns/jakarta/commons/jocl";<a name="line.609"></a>
+<FONT color="green">610</FONT>    <a name="line.610"></a>
+<FONT color="green">611</FONT>        /**<a name="line.611"></a>
+<FONT color="green">612</FONT>         * The default JOCL prefix, &lt;tt&gt;jocl:&lt;/tt&gt;.<a name="line.612"></a>
+<FONT color="green">613</FONT>         */<a name="line.613"></a>
+<FONT color="green">614</FONT>        public static final String JOCL_PREFIX = "jocl:";<a name="line.614"></a>
+<FONT color="green">615</FONT>    <a name="line.615"></a>
+<FONT color="green">616</FONT>        /**<a name="line.616"></a>
+<FONT color="green">617</FONT>         * A list of the types ({@link Class}es) already created via the parse.<a name="line.617"></a>
+<FONT color="green">618</FONT>         */<a name="line.618"></a>
+<FONT color="green">619</FONT>        protected ArrayList _typeList = new ArrayList();<a name="line.619"></a>
+<FONT color="green">620</FONT>    <a name="line.620"></a>
+<FONT color="green">621</FONT>        /**<a name="line.621"></a>
+<FONT color="green">622</FONT>         * A list of the values ({@link Object}s) already created via the parse.<a name="line.622"></a>
+<FONT color="green">623</FONT>         */<a name="line.623"></a>
+<FONT color="green">624</FONT>        protected ArrayList _valueList = new ArrayList();<a name="line.624"></a>
+<FONT color="green">625</FONT>    <a name="line.625"></a>
+<FONT color="green">626</FONT>        /**<a name="line.626"></a>
+<FONT color="green">627</FONT>         * The object I'm currently working on.<a name="line.627"></a>
+<FONT color="green">628</FONT>         */<a name="line.628"></a>
+<FONT color="green">629</FONT>        protected ConstructorDetails _cur = null;<a name="line.629"></a>
+<FONT color="green">630</FONT>    <a name="line.630"></a>
+<FONT color="green">631</FONT>        /**<a name="line.631"></a>
+<FONT color="green">632</FONT>         * When &lt;tt&gt;true&lt;/tt&gt;, I will treat elements with an<a name="line.632"></a>
+<FONT color="green">633</FONT>         * empty namespace URI as part of the JOCL namespace.<a name="line.633"></a>
+<FONT color="green">634</FONT>         *<a name="line.634"></a>
+<FONT color="green">635</FONT>         * @see #JOCL_NAMESPACE_URI<a name="line.635"></a>
+<FONT color="green">636</FONT>         */<a name="line.636"></a>
+<FONT color="green">637</FONT>        protected boolean _acceptEmptyNamespaceForElements = true;<a name="line.637"></a>
+<FONT color="green">638</FONT>    <a name="line.638"></a>
+<FONT color="green">639</FONT>        /**<a name="line.639"></a>
+<FONT color="green">640</FONT>         * When &lt;tt&gt;true&lt;/tt&gt;, I will treat elements with the<a name="line.640"></a>
+<FONT color="green">641</FONT>         * {@link #JOCL_PREFIX} but no namespace URI as being<a name="line.641"></a>
+<FONT color="green">642</FONT>         * mapped to the jocl namespace.<a name="line.642"></a>
+<FONT color="green">643</FONT>         *<a name="line.643"></a>
+<FONT color="green">644</FONT>         * @see #JOCL_PREFIX<a name="line.644"></a>
+<FONT color="green">645</FONT>         * @see #JOCL_NAMESPACE_URI<a name="line.645"></a>
+<FONT color="green">646</FONT>         */<a name="line.646"></a>
+<FONT color="green">647</FONT>        protected boolean _acceptJoclPrefixForElements = true;<a name="line.647"></a>
+<FONT color="green">648</FONT>    <a name="line.648"></a>
+<FONT color="green">649</FONT>        /**<a name="line.649"></a>
+<FONT color="green">650</FONT>         * When &lt;tt&gt;true&lt;/tt&gt;, I will treat attributes with an<a name="line.650"></a>
+<FONT color="green">651</FONT>         * empty namespace URI as part of the JOCL namespace.<a name="line.651"></a>
+<FONT color="green">652</FONT>         *<a name="line.652"></a>
+<FONT color="green">653</FONT>         * @see #JOCL_NAMESPACE_URI<a name="line.653"></a>
+<FONT color="green">654</FONT>         */<a name="line.654"></a>
+<FONT color="green">655</FONT>        protected boolean _acceptEmptyNamespaceForAttributes = true;<a name="line.655"></a>
+<FONT color="green">656</FONT>    <a name="line.656"></a>
+<FONT color="green">657</FONT>        /**<a name="line.657"></a>
+<FONT color="green">658</FONT>         * When &lt;tt&gt;true&lt;/tt&gt;, I will treat attributes with the<a name="line.658"></a>
+<FONT color="green">659</FONT>         * {@link #JOCL_PREFIX} but no namespace URI as being<a name="line.659"></a>
+<FONT color="green">660</FONT>         * mapped to the jocl namespace.<a name="line.660"></a>
+<FONT color="green">661</FONT>         *<a name="line.661"></a>
+<FONT color="green">662</FONT>         * @see #JOCL_PREFIX<a name="line.662"></a>
+<FONT color="green">663</FONT>         * @see #JOCL_NAMESPACE_URI<a name="line.663"></a>
+<FONT color="green">664</FONT>         */<a name="line.664"></a>
+<FONT color="green">665</FONT>        protected boolean _acceptJoclPrefixForAttributes = true;<a name="line.665"></a>
+<FONT color="green">666</FONT>    <a name="line.666"></a>
+<FONT color="green">667</FONT>        /** My {@link Locator}. */<a name="line.667"></a>
+<FONT color="green">668</FONT>        protected Locator _locator = null;<a name="line.668"></a>
+<FONT color="green">669</FONT>    <a name="line.669"></a>
+<FONT color="green">670</FONT>        /** The name of the "object" element. */<a name="line.670"></a>
+<FONT color="green">671</FONT>        protected static final String ELT_OBJECT  = "object";<a name="line.671"></a>
+<FONT color="green">672</FONT>    <a name="line.672"></a>
+<FONT color="green">673</FONT>        /** The name of the "array" element.<a name="line.673"></a>
+<FONT color="green">674</FONT>         * @since 1.2.2<a name="line.674"></a>
+<FONT color="green">675</FONT>         */<a name="line.675"></a>
+<FONT color="green">676</FONT>        protected static final String ELT_ARRAY  = "array";<a name="line.676"></a>
+<FONT color="green">677</FONT>    <a name="line.677"></a>
+<FONT color="green">678</FONT>        /** The name of the "collection" element.<a name="line.678"></a>
+<FONT color="green">679</FONT>         * @since 1.2.2<a name="line.679"></a>
+<FONT color="green">680</FONT>         */<a name="line.680"></a>
+<FONT color="green">681</FONT>        protected static final String ELT_COLLECTION  = "collection";<a name="line.681"></a>
+<FONT color="green">682</FONT>    <a name="line.682"></a>
+<FONT color="green">683</FONT>        /** The name of the "list" element.<a name="line.683"></a>
+<FONT color="green">684</FONT>         * @since 1.2.2<a name="line.684"></a>
+<FONT color="green">685</FONT>         */<a name="line.685"></a>
+<FONT color="green">686</FONT>        protected static final String ELT_LIST = "list";<a name="line.686"></a>
+<FONT color="green">687</FONT>    <a name="line.687"></a>
+<FONT color="green">688</FONT>        /** The name of the "object" element's "class" attribute. */<a name="line.688"></a>
+<FONT color="green">689</FONT>        protected static final String ATT_CLASS   = "class";<a name="line.689"></a>
+<FONT color="green">690</FONT>    <a name="line.690"></a>
+<FONT color="green">691</FONT>        /** The name of the "object" element's "isnull" attribute. */<a name="line.691"></a>
+<FONT color="green">692</FONT>        protected static final String ATT_ISNULL  = "null";<a name="line.692"></a>
+<FONT color="green">693</FONT>    <a name="line.693"></a>
+<FONT color="green">694</FONT>        /** The name of the "boolean" element. */<a name="line.694"></a>
+<FONT color="green">695</FONT>        protected static final String ELT_BOOLEAN = "boolean";<a name="line.695"></a>
+<FONT color="green">696</FONT>    <a name="line.696"></a>
+<FONT color="green">697</FONT>        /** The name of the "byte" element. */<a name="line.697"></a>
+<FONT color="green">698</FONT>        protected static final String ELT_BYTE    = "byte";<a name="line.698"></a>
+<FONT color="green">699</FONT>    <a name="line.699"></a>
+<FONT color="green">700</FONT>        /** The name of the "char" element. */<a name="line.700"></a>
+<FONT color="green">701</FONT>        protected static final String ELT_CHAR    = "char";<a name="line.701"></a>
+<FONT color="green">702</FONT>    <a name="line.702"></a>
+<FONT color="green">703</FONT>        /** The name of the "double" element. */<a name="line.703"></a>
+<FONT color="green">704</FONT>        protected static final String ELT_DOUBLE  = "double";<a name="line.704"></a>
+<FONT color="green">705</FONT>    <a name="line.705"></a>
+<FONT color="green">706</FONT>        /** The name of the "float" element. */<a name="line.706"></a>
+<FONT color="green">707</FONT>        protected static final String ELT_FLOAT   = "float";<a name="line.707"></a>
+<FONT color="green">708</FONT>    <a name="line.708"></a>
+<FONT color="green">709</FONT>        /** The name of the "int" element. */<a name="line.709"></a>
+<FONT color="green">710</FONT>        protected static final String ELT_INT     = "int";<a name="line.710"></a>
+<FONT color="green">711</FONT>    <a name="line.711"></a>
+<FONT color="green">712</FONT>        /** The name of the "long" element. */<a name="line.712"></a>
+<FONT color="green">713</FONT>        protected static final String ELT_LONG    = "long";<a name="line.713"></a>
+<FONT color="green">714</FONT>    <a name="line.714"></a>
+<FONT color="green">715</FONT>        /** The name of the "short" element. */<a name="line.715"></a>
+<FONT color="green">716</FONT>        protected static final String ELT_SHORT   = "short";<a name="line.716"></a>
+<FONT color="green">717</FONT>    <a name="line.717"></a>
+<FONT color="green">718</FONT>        /** The name of the "string" element. */<a name="line.718"></a>
+<FONT color="green">719</FONT>        protected static final String ELT_STRING  = "string";<a name="line.719"></a>
+<FONT color="green">720</FONT>    <a name="line.720"></a>
+<FONT color="green">721</FONT>        /** The name of the "value" attribute. */<a name="line.721"></a>
+<FONT color="green">722</FONT>        protected static final String ATT_VALUE   = "value";<a name="line.722"></a>
+<FONT color="green">723</FONT>    <a name="line.723"></a>
+<FONT color="green">724</FONT>        static class ConstructorDetails {<a name="line.724"></a>
+<FONT color="green">725</FONT>            private ConstructorDetails _parent = null;<a name="line.725"></a>
+<FONT color="green">726</FONT>            private Class _type = null;<a name="line.726"></a>
+<FONT color="green">727</FONT>            private ArrayList _argTypes = null;<a name="line.727"></a>
+<FONT color="green">728</FONT>            private ArrayList _argValues = null;<a name="line.728"></a>
+<FONT color="green">729</FONT>            private boolean _isnull = false;<a name="line.729"></a>
+<FONT color="green">730</FONT>            private boolean _isgroup = false;<a name="line.730"></a>
+<FONT color="green">731</FONT>    <a name="line.731"></a>
+<FONT color="green">732</FONT>            public ConstructorDetails(String classname, ConstructorDetails parent) throws ClassNotFoundException {<a name="line.732"></a>
+<FONT color="green">733</FONT>                this(Class.forName(classname),parent,false,false);<a name="line.733"></a>
+<FONT color="green">734</FONT>            }<a name="line.734"></a>
+<FONT color="green">735</FONT>    <a name="line.735"></a>
+<FONT color="green">736</FONT>            public ConstructorDetails(String classname, ConstructorDetails parent, boolean isnull) throws ClassNotFoundException {<a name="line.736"></a>
+<FONT color="green">737</FONT>                this(Class.forName(classname),parent,isnull,false);<a name="line.737"></a>
+<FONT color="green">738</FONT>            }<a name="line.738"></a>
+<FONT color="green">739</FONT>    <a name="line.739"></a>
+<FONT color="green">740</FONT>            /**<a name="line.740"></a>
+<FONT color="green">741</FONT>             * @since 1.3<a name="line.741"></a>
+<FONT color="green">742</FONT>             */<a name="line.742"></a>
+<FONT color="green">743</FONT>            public ConstructorDetails(String classname, ConstructorDetails parent, boolean isnull, boolean isgroup) throws ClassNotFoundException {<a name="line.743"></a>
+<FONT color="green">744</FONT>                this(Class.forName(classname),parent,isnull,isgroup);<a name="line.744"></a>
+<FONT color="green">745</FONT>            }<a name="line.745"></a>
+<FONT color="green">746</FONT>    <a name="line.746"></a>
+<FONT color="green">747</FONT>            /**<a name="line.747"></a>
+<FONT color="green">748</FONT>             * @since 1.3<a name="line.748"></a>
+<FONT color="green">749</FONT>             */<a name="line.749"></a>
+<FONT color="green">750</FONT>            public ConstructorDetails(Class type, ConstructorDetails parent, boolean isnull, boolean isgroup) {<a name="line.750"></a>
+<FONT color="green">751</FONT>                _parent = parent;<a name="line.751"></a>
+<FONT color="green">752</FONT>                _type = type;<a name="line.752"></a>
+<FONT color="green">753</FONT>                _argTypes = new ArrayList();<a name="line.753"></a>
+<FONT color="green">754</FONT>                _argValues = new ArrayList();<a name="line.754"></a>
+<FONT color="green">755</FONT>                _isnull = isnull;<a name="line.755"></a>
+<FONT color="green">756</FONT>                _isgroup = isgroup;<a name="line.756"></a>
+<FONT color="green">757</FONT>            }<a name="line.757"></a>
+<FONT color="green">758</FONT>    <a name="line.758"></a>
+<FONT color="green">759</FONT>            public void addArgument(Object value) {<a name="line.759"></a>
+<FONT color="green">760</FONT>                addArgument(value.getClass(),value);<a name="line.760"></a>
+<FONT color="green">761</FONT>            }<a name="line.761"></a>
+<FONT color="green">762</FONT>    <a name="line.762"></a>
+<FONT color="green">763</FONT>            public void addArgument(Class type, Object val) {<a name="line.763"></a>
+<FONT color="green">764</FONT>                if(_isnull) {<a name="line.764"></a>
+<FONT color="green">765</FONT>                    throw new NullPointerException("can't add arguments to null instances");<a name="line.765"></a>
+<FONT color="green">766</FONT>                }<a name="line.766"></a>
+<FONT color="green">767</FONT>                _argTypes.add(type);<a name="line.767"></a>
+<FONT color="green">768</FONT>                _argValues.add(val);<a name="line.768"></a>
+<FONT color="green">769</FONT>            }<a name="line.769"></a>
+<FONT color="green">770</FONT>    <a name="line.770"></a>
+<FONT color="green">771</FONT>            public Class getType() {<a name="line.771"></a>
+<FONT color="green">772</FONT>                return _type;<a name="line.772"></a>
+<FONT color="green">773</FONT>            }<a name="line.773"></a>
+<FONT color="green">774</FONT>    <a name="line.774"></a>
+<FONT color="green">775</FONT>            public ConstructorDetails getParent() {<a name="line.775"></a>
+<FONT color="green">776</FONT>                return _parent;<a name="line.776"></a>
+<FONT color="green">777</FONT>            }<a name="line.777"></a>
+<FONT color="green">778</FONT>    <a name="line.778"></a>
+<FONT color="green">779</FONT>            public Object createObject() throws InstantiationException, IllegalAccessException, InvocationTargetException {<a name="line.779"></a>
+<FONT color="green">780</FONT>                if(_isnull) {<a name="line.780"></a>
+<FONT color="green">781</FONT>                    return null;<a name="line.781"></a>
+<FONT color="green">782</FONT>                } else if( _isgroup ) {<a name="line.782"></a>
+<FONT color="green">783</FONT>                    if (_type.equals(Object[].class)) {<a name="line.783"></a>
+<FONT color="green">784</FONT>                        return _argValues.toArray();<a name="line.784"></a>
+<FONT color="green">785</FONT>                    } else if (_type.equals(Collection.class) || _type.equals(List.class)) {<a name="line.785"></a>
+<FONT color="green">786</FONT>                        return _argValues;<a name="line.786"></a>
+<FONT color="green">787</FONT>                    } else {<a name="line.787"></a>
+<FONT color="green">788</FONT>                        throw new IllegalStateException("implementation error: unhandled _type:" + _type);<a name="line.788"></a>
+<FONT color="green">789</FONT>                    }<a name="line.789"></a>
+<FONT color="green">790</FONT>                } else {<a name="line.790"></a>
+<FONT color="green">791</FONT>                    Class k = getType();<a name="line.791"></a>
+<FONT color="green">792</FONT>                    Class[] argtypes = (Class[])_argTypes.toArray(new Class[0]);<a name="line.792"></a>
+<FONT color="green">793</FONT>                    Object[] argvals = _argValues.toArray();<a name="line.793"></a>
+<FONT color="green">794</FONT>                    return ConstructorUtil.invokeConstructor(k,argtypes,argvals);<a name="line.794"></a>
+<FONT color="green">795</FONT>                }<a name="line.795"></a>
+<FONT color="green">796</FONT>            }<a name="line.796"></a>
+<FONT color="green">797</FONT>        }<a name="line.797"></a>
+<FONT color="green">798</FONT>    <a name="line.798"></a>
+<FONT color="green">799</FONT>    }<a name="line.799"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

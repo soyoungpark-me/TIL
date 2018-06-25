@@ -1,0 +1,537 @@
+<HTML>
+<BODY BGCOLOR="white">
+<PRE>
+<FONT color="green">001</FONT>    /*<a name="line.1"></a>
+<FONT color="green">002</FONT>     * Licensed to the Apache Software Foundation (ASF) under one or more<a name="line.2"></a>
+<FONT color="green">003</FONT>     * contributor license agreements.  See the NOTICE file distributed with<a name="line.3"></a>
+<FONT color="green">004</FONT>     * this work for additional information regarding copyright ownership.<a name="line.4"></a>
+<FONT color="green">005</FONT>     * The ASF licenses this file to You under the Apache License, Version 2.0<a name="line.5"></a>
+<FONT color="green">006</FONT>     * (the "License"); you may not use this file except in compliance with<a name="line.6"></a>
+<FONT color="green">007</FONT>     * the License.  You may obtain a copy of the License at<a name="line.7"></a>
+<FONT color="green">008</FONT>     *<a name="line.8"></a>
+<FONT color="green">009</FONT>     *      http://www.apache.org/licenses/LICENSE-2.0<a name="line.9"></a>
+<FONT color="green">010</FONT>     *<a name="line.10"></a>
+<FONT color="green">011</FONT>     * Unless required by applicable law or agreed to in writing, software<a name="line.11"></a>
+<FONT color="green">012</FONT>     * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.12"></a>
+<FONT color="green">013</FONT>     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.13"></a>
+<FONT color="green">014</FONT>     * See the License for the specific language governing permissions and<a name="line.14"></a>
+<FONT color="green">015</FONT>     * limitations under the License.<a name="line.15"></a>
+<FONT color="green">016</FONT>     */<a name="line.16"></a>
+<FONT color="green">017</FONT>    <a name="line.17"></a>
+<FONT color="green">018</FONT>    package org.apache.commons.pool.impl;<a name="line.18"></a>
+<FONT color="green">019</FONT>    <a name="line.19"></a>
+<FONT color="green">020</FONT>    import java.util.Iterator;<a name="line.20"></a>
+<FONT color="green">021</FONT>    import java.util.NoSuchElementException;<a name="line.21"></a>
+<FONT color="green">022</FONT>    import java.util.Stack;<a name="line.22"></a>
+<FONT color="green">023</FONT>    <a name="line.23"></a>
+<FONT color="green">024</FONT>    import org.apache.commons.pool.BaseObjectPool;<a name="line.24"></a>
+<FONT color="green">025</FONT>    import org.apache.commons.pool.ObjectPool;<a name="line.25"></a>
+<FONT color="green">026</FONT>    import org.apache.commons.pool.PoolUtils;<a name="line.26"></a>
+<FONT color="green">027</FONT>    import org.apache.commons.pool.PoolableObjectFactory;<a name="line.27"></a>
+<FONT color="green">028</FONT>    <a name="line.28"></a>
+<FONT color="green">029</FONT>    /**<a name="line.29"></a>
+<FONT color="green">030</FONT>     * A simple, {@link java.util.Stack Stack}-based {@link ObjectPool} implementation.<a name="line.30"></a>
+<FONT color="green">031</FONT>     * &lt;p&gt;<a name="line.31"></a>
+<FONT color="green">032</FONT>     * Given a {@link PoolableObjectFactory}, this class will maintain<a name="line.32"></a>
+<FONT color="green">033</FONT>     * a simple pool of instances.  A finite number of "sleeping"<a name="line.33"></a>
+<FONT color="green">034</FONT>     * or idle instances is enforced, but when the pool is<a name="line.34"></a>
+<FONT color="green">035</FONT>     * empty, new instances are created to support the new load.<a name="line.35"></a>
+<FONT color="green">036</FONT>     * Hence this class places no limit on the number of "active"<a name="line.36"></a>
+<FONT color="green">037</FONT>     * instances created by the pool, but is quite useful for<a name="line.37"></a>
+<FONT color="green">038</FONT>     * re-using &lt;tt&gt;Object&lt;/tt&gt;s without introducing<a name="line.38"></a>
+<FONT color="green">039</FONT>     * artificial limits.<a name="line.39"></a>
+<FONT color="green">040</FONT>     *<a name="line.40"></a>
+<FONT color="green">041</FONT>     * @param &lt;T&gt; the type of objects held in this pool<a name="line.41"></a>
+<FONT color="green">042</FONT>     * <a name="line.42"></a>
+<FONT color="green">043</FONT>     * @author Rodney Waldhoff<a name="line.43"></a>
+<FONT color="green">044</FONT>     * @author Dirk Verbeeck<a name="line.44"></a>
+<FONT color="green">045</FONT>     * @author Sandy McArthur<a name="line.45"></a>
+<FONT color="green">046</FONT>     * @version $Revision: 1222396 $ $Date: 2011-12-22 14:02:25 -0500 (Thu, 22 Dec 2011) $<a name="line.46"></a>
+<FONT color="green">047</FONT>     * @since Pool 1.0<a name="line.47"></a>
+<FONT color="green">048</FONT>     */<a name="line.48"></a>
+<FONT color="green">049</FONT>    public class StackObjectPool&lt;T&gt; extends BaseObjectPool&lt;T&gt; implements ObjectPool&lt;T&gt; {<a name="line.49"></a>
+<FONT color="green">050</FONT>        /**<a name="line.50"></a>
+<FONT color="green">051</FONT>         * Create a new pool using no factory. Clients must first <a name="line.51"></a>
+<FONT color="green">052</FONT>         * {@link #setFactory(PoolableObjectFactory) set the factory} or<a name="line.52"></a>
+<FONT color="green">053</FONT>         * else this pool will not behave correctly. Clients may first populate the pool<a name="line.53"></a>
+<FONT color="green">054</FONT>         * using {@link #returnObject(java.lang.Object)} before they can be {@link #borrowObject borrowed}<a name="line.54"></a>
+<FONT color="green">055</FONT>         * but this usage is &lt;strong&gt;discouraged&lt;/strong&gt;.<a name="line.55"></a>
+<FONT color="green">056</FONT>         *<a name="line.56"></a>
+<FONT color="green">057</FONT>         * @see #StackObjectPool(PoolableObjectFactory)<a name="line.57"></a>
+<FONT color="green">058</FONT>         * @deprecated to be removed in pool 2.0 - use {@link #StackObjectPool(PoolableObjectFactory)}<a name="line.58"></a>
+<FONT color="green">059</FONT>         */<a name="line.59"></a>
+<FONT color="green">060</FONT>        @Deprecated<a name="line.60"></a>
+<FONT color="green">061</FONT>        public StackObjectPool() {<a name="line.61"></a>
+<FONT color="green">062</FONT>            this(null,DEFAULT_MAX_SLEEPING,DEFAULT_INIT_SLEEPING_CAPACITY);<a name="line.62"></a>
+<FONT color="green">063</FONT>        }<a name="line.63"></a>
+<FONT color="green">064</FONT>    <a name="line.64"></a>
+<FONT color="green">065</FONT>        /**<a name="line.65"></a>
+<FONT color="green">066</FONT>         * Create a new pool using no factory.<a name="line.66"></a>
+<FONT color="green">067</FONT>         * Clients must first {@link #setFactory(PoolableObjectFactory) set the factory} or<a name="line.67"></a>
+<FONT color="green">068</FONT>         * else this pool will not behave correctly. Clients may first populate the pool<a name="line.68"></a>
+<FONT color="green">069</FONT>         * using {@link #returnObject(java.lang.Object)} before they can be {@link #borrowObject borrowed}<a name="line.69"></a>
+<FONT color="green">070</FONT>         * but this usage is &lt;strong&gt;discouraged&lt;/strong&gt;.<a name="line.70"></a>
+<FONT color="green">071</FONT>         *<a name="line.71"></a>
+<FONT color="green">072</FONT>         * @param maxIdle cap on the number of "sleeping" instances in the pool<a name="line.72"></a>
+<FONT color="green">073</FONT>         * @see #StackObjectPool(PoolableObjectFactory, int)<a name="line.73"></a>
+<FONT color="green">074</FONT>         * @deprecated to be removed in pool 2.0 - use {@link #StackObjectPool(PoolableObjectFactory, int)}<a name="line.74"></a>
+<FONT color="green">075</FONT>         */<a name="line.75"></a>
+<FONT color="green">076</FONT>        @Deprecated<a name="line.76"></a>
+<FONT color="green">077</FONT>        public StackObjectPool(int maxIdle) {<a name="line.77"></a>
+<FONT color="green">078</FONT>            this(null,maxIdle,DEFAULT_INIT_SLEEPING_CAPACITY);<a name="line.78"></a>
+<FONT color="green">079</FONT>        }<a name="line.79"></a>
+<FONT color="green">080</FONT>    <a name="line.80"></a>
+<FONT color="green">081</FONT>        /**<a name="line.81"></a>
+<FONT color="green">082</FONT>         * Create a new pool using no factory.<a name="line.82"></a>
+<FONT color="green">083</FONT>         * Clients must first {@link #setFactory(PoolableObjectFactory) set the factory} or<a name="line.83"></a>
+<FONT color="green">084</FONT>         * else this pool will not behave correctly. Clients may first populate the pool<a name="line.84"></a>
+<FONT color="green">085</FONT>         * using {@link #returnObject(java.lang.Object)} before they can be {@link #borrowObject borrowed}<a name="line.85"></a>
+<FONT color="green">086</FONT>         * but this usage is &lt;strong&gt;discouraged&lt;/strong&gt;.<a name="line.86"></a>
+<FONT color="green">087</FONT>         *<a name="line.87"></a>
+<FONT color="green">088</FONT>         * @param maxIdle cap on the number of "sleeping" instances in the pool<a name="line.88"></a>
+<FONT color="green">089</FONT>         * @param initIdleCapacity initial size of the pool (this specifies the size of the container,<a name="line.89"></a>
+<FONT color="green">090</FONT>         *             it does not cause the pool to be pre-populated.)<a name="line.90"></a>
+<FONT color="green">091</FONT>         * @see #StackObjectPool(PoolableObjectFactory, int, int)<a name="line.91"></a>
+<FONT color="green">092</FONT>         * @deprecated to be removed in pool 2.0 - use {@link #StackObjectPool(PoolableObjectFactory, int, int)}<a name="line.92"></a>
+<FONT color="green">093</FONT>         */<a name="line.93"></a>
+<FONT color="green">094</FONT>        @Deprecated<a name="line.94"></a>
+<FONT color="green">095</FONT>        public StackObjectPool(int maxIdle, int initIdleCapacity) {<a name="line.95"></a>
+<FONT color="green">096</FONT>            this(null,maxIdle,initIdleCapacity);<a name="line.96"></a>
+<FONT color="green">097</FONT>        }<a name="line.97"></a>
+<FONT color="green">098</FONT>    <a name="line.98"></a>
+<FONT color="green">099</FONT>        /**<a name="line.99"></a>
+<FONT color="green">100</FONT>         * Create a new &lt;tt&gt;StackObjectPool&lt;/tt&gt; using the specified &lt;i&gt;factory&lt;/i&gt; to create new instances.<a name="line.100"></a>
+<FONT color="green">101</FONT>         *<a name="line.101"></a>
+<FONT color="green">102</FONT>         * @param factory the {@link PoolableObjectFactory} used to populate the pool<a name="line.102"></a>
+<FONT color="green">103</FONT>         */<a name="line.103"></a>
+<FONT color="green">104</FONT>        public StackObjectPool(PoolableObjectFactory&lt;T&gt; factory) {<a name="line.104"></a>
+<FONT color="green">105</FONT>            this(factory,DEFAULT_MAX_SLEEPING,DEFAULT_INIT_SLEEPING_CAPACITY);<a name="line.105"></a>
+<FONT color="green">106</FONT>        }<a name="line.106"></a>
+<FONT color="green">107</FONT>    <a name="line.107"></a>
+<FONT color="green">108</FONT>        /**<a name="line.108"></a>
+<FONT color="green">109</FONT>         * Create a new &lt;tt&gt;SimpleObjectPool&lt;/tt&gt; using the specified &lt;i&gt;factory&lt;/i&gt; to create new instances,<a name="line.109"></a>
+<FONT color="green">110</FONT>         * capping the number of "sleeping" instances to &lt;i&gt;maxIdle&lt;/i&gt;.<a name="line.110"></a>
+<FONT color="green">111</FONT>         *<a name="line.111"></a>
+<FONT color="green">112</FONT>         * @param factory the {@link PoolableObjectFactory} used to populate the pool<a name="line.112"></a>
+<FONT color="green">113</FONT>         * @param maxIdle cap on the number of "sleeping" instances in the pool<a name="line.113"></a>
+<FONT color="green">114</FONT>         */<a name="line.114"></a>
+<FONT color="green">115</FONT>        public StackObjectPool(PoolableObjectFactory&lt;T&gt; factory, int maxIdle) {<a name="line.115"></a>
+<FONT color="green">116</FONT>            this(factory,maxIdle,DEFAULT_INIT_SLEEPING_CAPACITY);<a name="line.116"></a>
+<FONT color="green">117</FONT>        }<a name="line.117"></a>
+<FONT color="green">118</FONT>    <a name="line.118"></a>
+<FONT color="green">119</FONT>        /**<a name="line.119"></a>
+<FONT color="green">120</FONT>         * &lt;p&gt;Create a new &lt;tt&gt;StackObjectPool&lt;/tt&gt; using the specified &lt;code&gt;factory&lt;/code&gt; to create new instances,<a name="line.120"></a>
+<FONT color="green">121</FONT>         * capping the number of "sleeping" instances to &lt;code&gt;maxIdle&lt;/code&gt;, and initially allocating a container<a name="line.121"></a>
+<FONT color="green">122</FONT>         * capable of containing at least &lt;code&gt;initIdleCapacity&lt;/code&gt; instances.  The pool is not pre-populated.<a name="line.122"></a>
+<FONT color="green">123</FONT>         * The &lt;code&gt;initIdleCapacity&lt;/code&gt; parameter just determines the initial size of the underlying<a name="line.123"></a>
+<FONT color="green">124</FONT>         * container, which can increase beyond this value if &lt;code&gt;maxIdle &amp;gt; initIdleCapacity.&lt;/code&gt;&lt;/p&gt;<a name="line.124"></a>
+<FONT color="green">125</FONT>         * <a name="line.125"></a>
+<FONT color="green">126</FONT>         * &lt;p&gt;Negative values of &lt;code&gt;maxIdle&lt;/code&gt; are ignored (i.e., the pool is created using<a name="line.126"></a>
+<FONT color="green">127</FONT>         * {@link #DEFAULT_MAX_SLEEPING}) as are non-positive values for &lt;code&gt;initIdleCapacity.&lt;/code&gt;<a name="line.127"></a>
+<FONT color="green">128</FONT>         *<a name="line.128"></a>
+<FONT color="green">129</FONT>         * @param factory the {@link PoolableObjectFactory} used to populate the pool<a name="line.129"></a>
+<FONT color="green">130</FONT>         * @param maxIdle cap on the number of "sleeping" instances in the pool<a name="line.130"></a>
+<FONT color="green">131</FONT>         * @param initIdleCapacity initial size of the pool (this specifies the size of the container,<a name="line.131"></a>
+<FONT color="green">132</FONT>         *             it does not cause the pool to be pre-populated.)<a name="line.132"></a>
+<FONT color="green">133</FONT>         */<a name="line.133"></a>
+<FONT color="green">134</FONT>        public StackObjectPool(PoolableObjectFactory&lt;T&gt; factory, int maxIdle, int initIdleCapacity) {<a name="line.134"></a>
+<FONT color="green">135</FONT>            _factory = factory;<a name="line.135"></a>
+<FONT color="green">136</FONT>            _maxSleeping = (maxIdle &lt; 0 ? DEFAULT_MAX_SLEEPING : maxIdle);<a name="line.136"></a>
+<FONT color="green">137</FONT>            int initcapacity = (initIdleCapacity &lt; 1 ? DEFAULT_INIT_SLEEPING_CAPACITY : initIdleCapacity);<a name="line.137"></a>
+<FONT color="green">138</FONT>            _pool = new Stack&lt;T&gt;();<a name="line.138"></a>
+<FONT color="green">139</FONT>            _pool.ensureCapacity( initcapacity &gt; _maxSleeping ? _maxSleeping : initcapacity);<a name="line.139"></a>
+<FONT color="green">140</FONT>        }<a name="line.140"></a>
+<FONT color="green">141</FONT>    <a name="line.141"></a>
+<FONT color="green">142</FONT>        /**<a name="line.142"></a>
+<FONT color="green">143</FONT>         * &lt;p&gt;Borrows an object from the pool.  If there are idle instances available on the stack,<a name="line.143"></a>
+<FONT color="green">144</FONT>         * the top element of the stack is popped to activate, validate and return to the client.  If there<a name="line.144"></a>
+<FONT color="green">145</FONT>         * are no idle instances available, the {@link PoolableObjectFactory#makeObject() makeObject} <a name="line.145"></a>
+<FONT color="green">146</FONT>         * method of the pool's {@link PoolableObjectFactory} is invoked to create a new instance.&lt;/p&gt;<a name="line.146"></a>
+<FONT color="green">147</FONT>         * <a name="line.147"></a>
+<FONT color="green">148</FONT>         * &lt;p&gt;All instances are {@link PoolableObjectFactory#activateObject(Object) activated} and<a name="line.148"></a>
+<FONT color="green">149</FONT>         * {@link PoolableObjectFactory#validateObject(Object) validated} before being returned to the<a name="line.149"></a>
+<FONT color="green">150</FONT>         * client.  If validation fails or an exception occurs activating or validating an instance <a name="line.150"></a>
+<FONT color="green">151</FONT>         * popped from the idle instance stack, the failing instance is <a name="line.151"></a>
+<FONT color="green">152</FONT>         * {@link PoolableObjectFactory#destroyObject(Object) destroyed} and the next instance on<a name="line.152"></a>
+<FONT color="green">153</FONT>         * the stack is popped, validated and activated.  This process continues until either the<a name="line.153"></a>
+<FONT color="green">154</FONT>         * stack is empty or an instance passes validation.  If the stack is empty on activation or<a name="line.154"></a>
+<FONT color="green">155</FONT>         * it does not contain any valid instances, the factory's &lt;code&gt;makeObject&lt;/code&gt; method is used<a name="line.155"></a>
+<FONT color="green">156</FONT>         * to create a new instance.  If a null instance is returned by the factory or the created<a name="line.156"></a>
+<FONT color="green">157</FONT>         * instance either raises an exception on activation or fails validation, &lt;code&gt;NoSuchElementException&lt;/code&gt;<a name="line.157"></a>
+<FONT color="green">158</FONT>         * is thrown. Exceptions thrown by &lt;code&gt;MakeObject&lt;/code&gt; are propagated to the caller; but <a name="line.158"></a>
+<FONT color="green">159</FONT>         * other than &lt;code&gt;ThreadDeath&lt;/code&gt; or &lt;code&gt;VirtualMachineError&lt;/code&gt;, exceptions generated by<a name="line.159"></a>
+<FONT color="green">160</FONT>         * activation, validation or destroy methods are swallowed silently.&lt;/p&gt;<a name="line.160"></a>
+<FONT color="green">161</FONT>         * <a name="line.161"></a>
+<FONT color="green">162</FONT>         * @return an instance from the pool<a name="line.162"></a>
+<FONT color="green">163</FONT>         */<a name="line.163"></a>
+<FONT color="green">164</FONT>        @Override<a name="line.164"></a>
+<FONT color="green">165</FONT>        public synchronized T borrowObject() throws Exception {<a name="line.165"></a>
+<FONT color="green">166</FONT>            assertOpen();<a name="line.166"></a>
+<FONT color="green">167</FONT>            T obj = null;<a name="line.167"></a>
+<FONT color="green">168</FONT>            boolean newlyCreated = false;<a name="line.168"></a>
+<FONT color="green">169</FONT>            while (null == obj) {<a name="line.169"></a>
+<FONT color="green">170</FONT>                if (!_pool.empty()) {<a name="line.170"></a>
+<FONT color="green">171</FONT>                    obj = _pool.pop();<a name="line.171"></a>
+<FONT color="green">172</FONT>                } else {<a name="line.172"></a>
+<FONT color="green">173</FONT>                    if(null == _factory) {<a name="line.173"></a>
+<FONT color="green">174</FONT>                        throw new NoSuchElementException();<a name="line.174"></a>
+<FONT color="green">175</FONT>                    } else {<a name="line.175"></a>
+<FONT color="green">176</FONT>                        obj = _factory.makeObject();<a name="line.176"></a>
+<FONT color="green">177</FONT>                        newlyCreated = true;<a name="line.177"></a>
+<FONT color="green">178</FONT>                      if (obj == null) {<a name="line.178"></a>
+<FONT color="green">179</FONT>                        throw new NoSuchElementException("PoolableObjectFactory.makeObject() returned null.");<a name="line.179"></a>
+<FONT color="green">180</FONT>                      }<a name="line.180"></a>
+<FONT color="green">181</FONT>                    }<a name="line.181"></a>
+<FONT color="green">182</FONT>                }<a name="line.182"></a>
+<FONT color="green">183</FONT>                if (null != _factory &amp;&amp; null != obj) {<a name="line.183"></a>
+<FONT color="green">184</FONT>                    try {<a name="line.184"></a>
+<FONT color="green">185</FONT>                        _factory.activateObject(obj);<a name="line.185"></a>
+<FONT color="green">186</FONT>                        if (!_factory.validateObject(obj)) {<a name="line.186"></a>
+<FONT color="green">187</FONT>                            throw new Exception("ValidateObject failed");<a name="line.187"></a>
+<FONT color="green">188</FONT>                        }<a name="line.188"></a>
+<FONT color="green">189</FONT>                    } catch (Throwable t) {<a name="line.189"></a>
+<FONT color="green">190</FONT>                        PoolUtils.checkRethrow(t);<a name="line.190"></a>
+<FONT color="green">191</FONT>                        try {<a name="line.191"></a>
+<FONT color="green">192</FONT>                            _factory.destroyObject(obj);<a name="line.192"></a>
+<FONT color="green">193</FONT>                        } catch (Throwable t2) {<a name="line.193"></a>
+<FONT color="green">194</FONT>                            PoolUtils.checkRethrow(t2);<a name="line.194"></a>
+<FONT color="green">195</FONT>                            // swallowed<a name="line.195"></a>
+<FONT color="green">196</FONT>                        } finally {<a name="line.196"></a>
+<FONT color="green">197</FONT>                            obj = null;<a name="line.197"></a>
+<FONT color="green">198</FONT>                        }<a name="line.198"></a>
+<FONT color="green">199</FONT>                        if (newlyCreated) {<a name="line.199"></a>
+<FONT color="green">200</FONT>                            throw new NoSuchElementException(<a name="line.200"></a>
+<FONT color="green">201</FONT>                                "Could not create a validated object, cause: " +<a name="line.201"></a>
+<FONT color="green">202</FONT>                                t.getMessage());<a name="line.202"></a>
+<FONT color="green">203</FONT>                        }<a name="line.203"></a>
+<FONT color="green">204</FONT>                    }<a name="line.204"></a>
+<FONT color="green">205</FONT>                }<a name="line.205"></a>
+<FONT color="green">206</FONT>            }<a name="line.206"></a>
+<FONT color="green">207</FONT>            _numActive++;<a name="line.207"></a>
+<FONT color="green">208</FONT>            return obj;<a name="line.208"></a>
+<FONT color="green">209</FONT>        }<a name="line.209"></a>
+<FONT color="green">210</FONT>    <a name="line.210"></a>
+<FONT color="green">211</FONT>        /**<a name="line.211"></a>
+<FONT color="green">212</FONT>         * &lt;p&gt;Returns an instance to the pool, pushing it on top of the idle instance stack after successful<a name="line.212"></a>
+<FONT color="green">213</FONT>         * validation and passivation. The returning instance is destroyed if any of the following are true:&lt;ul&gt;<a name="line.213"></a>
+<FONT color="green">214</FONT>         *   &lt;li&gt;the pool is closed&lt;/li&gt;<a name="line.214"></a>
+<FONT color="green">215</FONT>         *   &lt;li&gt;{@link PoolableObjectFactory#validateObject(Object) validation} fails&lt;/li&gt;<a name="line.215"></a>
+<FONT color="green">216</FONT>         *   &lt;li&gt;{@link PoolableObjectFactory#passivateObject(Object) passivation} throws an exception&lt;/li&gt;<a name="line.216"></a>
+<FONT color="green">217</FONT>         * &lt;/ul&gt;<a name="line.217"></a>
+<FONT color="green">218</FONT>         * If adding a validated, passivated returning instance to the stack would cause<a name="line.218"></a>
+<FONT color="green">219</FONT>         * {@link #getMaxSleeping() maxSleeping} to be exceeded, the oldest (bottom) instance on the stack<a name="line.219"></a>
+<FONT color="green">220</FONT>         * is destroyed to make room for the returning instance, which is pushed on top of the stack.&lt;/p&gt;<a name="line.220"></a>
+<FONT color="green">221</FONT>         * <a name="line.221"></a>
+<FONT color="green">222</FONT>         * &lt;p&gt;Exceptions passivating or destroying instances are silently swallowed.  Exceptions validating<a name="line.222"></a>
+<FONT color="green">223</FONT>         * instances are propagated to the client.&lt;/p&gt;<a name="line.223"></a>
+<FONT color="green">224</FONT>         * <a name="line.224"></a>
+<FONT color="green">225</FONT>         * @param obj instance to return to the pool<a name="line.225"></a>
+<FONT color="green">226</FONT>         */<a name="line.226"></a>
+<FONT color="green">227</FONT>        @Override<a name="line.227"></a>
+<FONT color="green">228</FONT>        public synchronized void returnObject(T obj) throws Exception {<a name="line.228"></a>
+<FONT color="green">229</FONT>            boolean success = !isClosed();<a name="line.229"></a>
+<FONT color="green">230</FONT>            if(null != _factory) {<a name="line.230"></a>
+<FONT color="green">231</FONT>                if(!_factory.validateObject(obj)) {<a name="line.231"></a>
+<FONT color="green">232</FONT>                    success = false;<a name="line.232"></a>
+<FONT color="green">233</FONT>                } else {<a name="line.233"></a>
+<FONT color="green">234</FONT>                    try {<a name="line.234"></a>
+<FONT color="green">235</FONT>                        _factory.passivateObject(obj);<a name="line.235"></a>
+<FONT color="green">236</FONT>                    } catch(Exception e) {<a name="line.236"></a>
+<FONT color="green">237</FONT>                        success = false;<a name="line.237"></a>
+<FONT color="green">238</FONT>                    }<a name="line.238"></a>
+<FONT color="green">239</FONT>                }<a name="line.239"></a>
+<FONT color="green">240</FONT>            }<a name="line.240"></a>
+<FONT color="green">241</FONT>    <a name="line.241"></a>
+<FONT color="green">242</FONT>            boolean shouldDestroy = !success;<a name="line.242"></a>
+<FONT color="green">243</FONT>    <a name="line.243"></a>
+<FONT color="green">244</FONT>            _numActive--;<a name="line.244"></a>
+<FONT color="green">245</FONT>            if (success) {<a name="line.245"></a>
+<FONT color="green">246</FONT>                T toBeDestroyed = null;<a name="line.246"></a>
+<FONT color="green">247</FONT>                if(_pool.size() &gt;= _maxSleeping) {<a name="line.247"></a>
+<FONT color="green">248</FONT>                    shouldDestroy = true;<a name="line.248"></a>
+<FONT color="green">249</FONT>                    toBeDestroyed = _pool.remove(0); // remove the stalest object<a name="line.249"></a>
+<FONT color="green">250</FONT>                }<a name="line.250"></a>
+<FONT color="green">251</FONT>                _pool.push(obj);<a name="line.251"></a>
+<FONT color="green">252</FONT>                obj = toBeDestroyed; // swap returned obj with the stalest one so it can be destroyed<a name="line.252"></a>
+<FONT color="green">253</FONT>            }<a name="line.253"></a>
+<FONT color="green">254</FONT>            notifyAll(); // _numActive has changed<a name="line.254"></a>
+<FONT color="green">255</FONT>    <a name="line.255"></a>
+<FONT color="green">256</FONT>            if(shouldDestroy) { // by constructor, shouldDestroy is false when _factory is null<a name="line.256"></a>
+<FONT color="green">257</FONT>                try {<a name="line.257"></a>
+<FONT color="green">258</FONT>                    _factory.destroyObject(obj);<a name="line.258"></a>
+<FONT color="green">259</FONT>                } catch(Exception e) {<a name="line.259"></a>
+<FONT color="green">260</FONT>                    // ignored<a name="line.260"></a>
+<FONT color="green">261</FONT>                }<a name="line.261"></a>
+<FONT color="green">262</FONT>            }<a name="line.262"></a>
+<FONT color="green">263</FONT>        }<a name="line.263"></a>
+<FONT color="green">264</FONT>    <a name="line.264"></a>
+<FONT color="green">265</FONT>        /**<a name="line.265"></a>
+<FONT color="green">266</FONT>         * {@inheritDoc}<a name="line.266"></a>
+<FONT color="green">267</FONT>         */<a name="line.267"></a>
+<FONT color="green">268</FONT>        @Override<a name="line.268"></a>
+<FONT color="green">269</FONT>        public synchronized void invalidateObject(T obj) throws Exception {<a name="line.269"></a>
+<FONT color="green">270</FONT>            _numActive--;<a name="line.270"></a>
+<FONT color="green">271</FONT>            if (null != _factory) {<a name="line.271"></a>
+<FONT color="green">272</FONT>                _factory.destroyObject(obj);<a name="line.272"></a>
+<FONT color="green">273</FONT>            }<a name="line.273"></a>
+<FONT color="green">274</FONT>            notifyAll(); // _numActive has changed<a name="line.274"></a>
+<FONT color="green">275</FONT>        }<a name="line.275"></a>
+<FONT color="green">276</FONT>    <a name="line.276"></a>
+<FONT color="green">277</FONT>        /**<a name="line.277"></a>
+<FONT color="green">278</FONT>         * Return the number of instances<a name="line.278"></a>
+<FONT color="green">279</FONT>         * currently idle in this pool.<a name="line.279"></a>
+<FONT color="green">280</FONT>         *<a name="line.280"></a>
+<FONT color="green">281</FONT>         * @return the number of instances currently idle in this pool<a name="line.281"></a>
+<FONT color="green">282</FONT>         */<a name="line.282"></a>
+<FONT color="green">283</FONT>        @Override<a name="line.283"></a>
+<FONT color="green">284</FONT>        public synchronized int getNumIdle() {<a name="line.284"></a>
+<FONT color="green">285</FONT>            return _pool.size();<a name="line.285"></a>
+<FONT color="green">286</FONT>        }<a name="line.286"></a>
+<FONT color="green">287</FONT>    <a name="line.287"></a>
+<FONT color="green">288</FONT>        /**<a name="line.288"></a>
+<FONT color="green">289</FONT>         * Return the number of instances currently borrowed from this pool.<a name="line.289"></a>
+<FONT color="green">290</FONT>         *<a name="line.290"></a>
+<FONT color="green">291</FONT>         * @return the number of instances currently borrowed from this pool<a name="line.291"></a>
+<FONT color="green">292</FONT>         */<a name="line.292"></a>
+<FONT color="green">293</FONT>        @Override<a name="line.293"></a>
+<FONT color="green">294</FONT>        public synchronized int getNumActive() {<a name="line.294"></a>
+<FONT color="green">295</FONT>            return _numActive;<a name="line.295"></a>
+<FONT color="green">296</FONT>        }<a name="line.296"></a>
+<FONT color="green">297</FONT>    <a name="line.297"></a>
+<FONT color="green">298</FONT>        /**<a name="line.298"></a>
+<FONT color="green">299</FONT>         * Clears any objects sitting idle in the pool. Silently swallows any<a name="line.299"></a>
+<FONT color="green">300</FONT>         * exceptions thrown by {@link PoolableObjectFactory#destroyObject(Object)}.<a name="line.300"></a>
+<FONT color="green">301</FONT>         */<a name="line.301"></a>
+<FONT color="green">302</FONT>        @Override<a name="line.302"></a>
+<FONT color="green">303</FONT>        public synchronized void clear() {<a name="line.303"></a>
+<FONT color="green">304</FONT>            if(null != _factory) {<a name="line.304"></a>
+<FONT color="green">305</FONT>                Iterator&lt;T&gt; it = _pool.iterator();<a name="line.305"></a>
+<FONT color="green">306</FONT>                while(it.hasNext()) {<a name="line.306"></a>
+<FONT color="green">307</FONT>                    try {<a name="line.307"></a>
+<FONT color="green">308</FONT>                        _factory.destroyObject(it.next());<a name="line.308"></a>
+<FONT color="green">309</FONT>                    } catch(Exception e) {<a name="line.309"></a>
+<FONT color="green">310</FONT>                        // ignore error, keep destroying the rest<a name="line.310"></a>
+<FONT color="green">311</FONT>                    }<a name="line.311"></a>
+<FONT color="green">312</FONT>                }<a name="line.312"></a>
+<FONT color="green">313</FONT>            }<a name="line.313"></a>
+<FONT color="green">314</FONT>            _pool.clear();<a name="line.314"></a>
+<FONT color="green">315</FONT>        }<a name="line.315"></a>
+<FONT color="green">316</FONT>    <a name="line.316"></a>
+<FONT color="green">317</FONT>        /**<a name="line.317"></a>
+<FONT color="green">318</FONT>         * &lt;p&gt;Close this pool, and free any resources associated with it. Invokes<a name="line.318"></a>
+<FONT color="green">319</FONT>         * {@link #clear()} to destroy and remove instances in the pool.&lt;/p&gt;<a name="line.319"></a>
+<FONT color="green">320</FONT>         * <a name="line.320"></a>
+<FONT color="green">321</FONT>         * &lt;p&gt;Calling {@link #addObject} or {@link #borrowObject} after invoking<a name="line.321"></a>
+<FONT color="green">322</FONT>         * this method on a pool will cause them to throw an<a name="line.322"></a>
+<FONT color="green">323</FONT>         * {@link IllegalStateException}.&lt;/p&gt;<a name="line.323"></a>
+<FONT color="green">324</FONT>         *<a name="line.324"></a>
+<FONT color="green">325</FONT>         * @throws Exception never - exceptions clearing the pool are swallowed<a name="line.325"></a>
+<FONT color="green">326</FONT>         */<a name="line.326"></a>
+<FONT color="green">327</FONT>        @Override<a name="line.327"></a>
+<FONT color="green">328</FONT>        public void close() throws Exception {<a name="line.328"></a>
+<FONT color="green">329</FONT>            super.close();<a name="line.329"></a>
+<FONT color="green">330</FONT>            clear();<a name="line.330"></a>
+<FONT color="green">331</FONT>        }<a name="line.331"></a>
+<FONT color="green">332</FONT>    <a name="line.332"></a>
+<FONT color="green">333</FONT>        /**<a name="line.333"></a>
+<FONT color="green">334</FONT>         * &lt;p&gt;Create an object, and place it on top of the stack.<a name="line.334"></a>
+<FONT color="green">335</FONT>         * This method is useful for "pre-loading" a pool with idle objects.&lt;/p&gt;<a name="line.335"></a>
+<FONT color="green">336</FONT>         * <a name="line.336"></a>
+<FONT color="green">337</FONT>         * &lt;p&gt;Before being added to the pool, the newly created instance is<a name="line.337"></a>
+<FONT color="green">338</FONT>         * {@link PoolableObjectFactory#validateObject(Object) validated} and <a name="line.338"></a>
+<FONT color="green">339</FONT>         * {@link PoolableObjectFactory#passivateObject(Object) passivated}.  If validation<a name="line.339"></a>
+<FONT color="green">340</FONT>         * fails, the new instance is {@link PoolableObjectFactory#destroyObject(Object) destroyed}.<a name="line.340"></a>
+<FONT color="green">341</FONT>         * Exceptions generated by the factory &lt;code&gt;makeObject&lt;/code&gt; or &lt;code&gt;passivate&lt;/code&gt; are<a name="line.341"></a>
+<FONT color="green">342</FONT>         * propagated to the caller. Exceptions destroying instances are silently swallowed.&lt;/p&gt;<a name="line.342"></a>
+<FONT color="green">343</FONT>         * <a name="line.343"></a>
+<FONT color="green">344</FONT>         * &lt;p&gt;If a new instance is created and successfully validated and passivated and adding this<a name="line.344"></a>
+<FONT color="green">345</FONT>         * instance to the pool causes {@link #getMaxSleeping() maxSleeping} to be exceeded, the oldest<a name="line.345"></a>
+<FONT color="green">346</FONT>         * (bottom) instance in the pool is destroyed to make room for the newly created instance, which<a name="line.346"></a>
+<FONT color="green">347</FONT>         * is pushed on top of the stack.<a name="line.347"></a>
+<FONT color="green">348</FONT>         * <a name="line.348"></a>
+<FONT color="green">349</FONT>         * @throws Exception when the {@link #getFactory() factory} has a problem creating or passivating an object.<a name="line.349"></a>
+<FONT color="green">350</FONT>         */<a name="line.350"></a>
+<FONT color="green">351</FONT>        @Override<a name="line.351"></a>
+<FONT color="green">352</FONT>        public synchronized void addObject() throws Exception {<a name="line.352"></a>
+<FONT color="green">353</FONT>            assertOpen();<a name="line.353"></a>
+<FONT color="green">354</FONT>            if (_factory == null) {<a name="line.354"></a>
+<FONT color="green">355</FONT>                throw new IllegalStateException("Cannot add objects without a factory.");<a name="line.355"></a>
+<FONT color="green">356</FONT>            }<a name="line.356"></a>
+<FONT color="green">357</FONT>            T obj = _factory.makeObject();<a name="line.357"></a>
+<FONT color="green">358</FONT>    <a name="line.358"></a>
+<FONT color="green">359</FONT>            boolean success = true;<a name="line.359"></a>
+<FONT color="green">360</FONT>            if(!_factory.validateObject(obj)) {<a name="line.360"></a>
+<FONT color="green">361</FONT>                success = false;<a name="line.361"></a>
+<FONT color="green">362</FONT>            } else {<a name="line.362"></a>
+<FONT color="green">363</FONT>                _factory.passivateObject(obj);<a name="line.363"></a>
+<FONT color="green">364</FONT>            }<a name="line.364"></a>
+<FONT color="green">365</FONT>    <a name="line.365"></a>
+<FONT color="green">366</FONT>            boolean shouldDestroy = !success;<a name="line.366"></a>
+<FONT color="green">367</FONT>    <a name="line.367"></a>
+<FONT color="green">368</FONT>            if (success) {<a name="line.368"></a>
+<FONT color="green">369</FONT>                T toBeDestroyed = null;<a name="line.369"></a>
+<FONT color="green">370</FONT>                if(_pool.size() &gt;= _maxSleeping) {<a name="line.370"></a>
+<FONT color="green">371</FONT>                    shouldDestroy = true;<a name="line.371"></a>
+<FONT color="green">372</FONT>                    toBeDestroyed = _pool.remove(0); // remove the stalest object<a name="line.372"></a>
+<FONT color="green">373</FONT>                }<a name="line.373"></a>
+<FONT color="green">374</FONT>                _pool.push(obj);<a name="line.374"></a>
+<FONT color="green">375</FONT>                obj = toBeDestroyed; // swap returned obj with the stalest one so it can be destroyed<a name="line.375"></a>
+<FONT color="green">376</FONT>            }<a name="line.376"></a>
+<FONT color="green">377</FONT>            notifyAll(); // _numIdle has changed<a name="line.377"></a>
+<FONT color="green">378</FONT>    <a name="line.378"></a>
+<FONT color="green">379</FONT>            if(shouldDestroy) { // by constructor, shouldDestroy is false when _factory is null<a name="line.379"></a>
+<FONT color="green">380</FONT>                try {<a name="line.380"></a>
+<FONT color="green">381</FONT>                    _factory.destroyObject(obj);<a name="line.381"></a>
+<FONT color="green">382</FONT>                } catch(Exception e) {<a name="line.382"></a>
+<FONT color="green">383</FONT>                    // ignored<a name="line.383"></a>
+<FONT color="green">384</FONT>                }<a name="line.384"></a>
+<FONT color="green">385</FONT>            }<a name="line.385"></a>
+<FONT color="green">386</FONT>        }<a name="line.386"></a>
+<FONT color="green">387</FONT>    <a name="line.387"></a>
+<FONT color="green">388</FONT>        /**<a name="line.388"></a>
+<FONT color="green">389</FONT>         * Sets the {@link PoolableObjectFactory factory} this pool uses<a name="line.389"></a>
+<FONT color="green">390</FONT>         * to create new instances. Trying to change<a name="line.390"></a>
+<FONT color="green">391</FONT>         * the &lt;code&gt;factory&lt;/code&gt; while there are borrowed objects will<a name="line.391"></a>
+<FONT color="green">392</FONT>         * throw an {@link IllegalStateException}.<a name="line.392"></a>
+<FONT color="green">393</FONT>         *<a name="line.393"></a>
+<FONT color="green">394</FONT>         * @param factory the {@link PoolableObjectFactory} used to create new instances.<a name="line.394"></a>
+<FONT color="green">395</FONT>         * @throws IllegalStateException when the factory cannot be set at this time<a name="line.395"></a>
+<FONT color="green">396</FONT>         * @deprecated to be removed in pool 2.0<a name="line.396"></a>
+<FONT color="green">397</FONT>         */<a name="line.397"></a>
+<FONT color="green">398</FONT>        @Deprecated<a name="line.398"></a>
+<FONT color="green">399</FONT>        @Override<a name="line.399"></a>
+<FONT color="green">400</FONT>        public synchronized void setFactory(PoolableObjectFactory&lt;T&gt; factory) throws IllegalStateException {<a name="line.400"></a>
+<FONT color="green">401</FONT>            assertOpen();<a name="line.401"></a>
+<FONT color="green">402</FONT>            if(0 &lt; getNumActive()) {<a name="line.402"></a>
+<FONT color="green">403</FONT>                throw new IllegalStateException("Objects are already active");<a name="line.403"></a>
+<FONT color="green">404</FONT>            } else {<a name="line.404"></a>
+<FONT color="green">405</FONT>                clear();<a name="line.405"></a>
+<FONT color="green">406</FONT>                _factory = factory;<a name="line.406"></a>
+<FONT color="green">407</FONT>            }<a name="line.407"></a>
+<FONT color="green">408</FONT>        }<a name="line.408"></a>
+<FONT color="green">409</FONT>    <a name="line.409"></a>
+<FONT color="green">410</FONT>        /**<a name="line.410"></a>
+<FONT color="green">411</FONT>         * The cap on the number of "sleeping" instances in the pool.<a name="line.411"></a>
+<FONT color="green">412</FONT>         */<a name="line.412"></a>
+<FONT color="green">413</FONT>        protected static final int DEFAULT_MAX_SLEEPING  = 8;<a name="line.413"></a>
+<FONT color="green">414</FONT>    <a name="line.414"></a>
+<FONT color="green">415</FONT>        /**<a name="line.415"></a>
+<FONT color="green">416</FONT>         * The default initial size of the pool<a name="line.416"></a>
+<FONT color="green">417</FONT>         * (this specifies the size of the container, it does not<a name="line.417"></a>
+<FONT color="green">418</FONT>         * cause the pool to be pre-populated.)<a name="line.418"></a>
+<FONT color="green">419</FONT>         */<a name="line.419"></a>
+<FONT color="green">420</FONT>        protected static final int DEFAULT_INIT_SLEEPING_CAPACITY = 4;<a name="line.420"></a>
+<FONT color="green">421</FONT>    <a name="line.421"></a>
+<FONT color="green">422</FONT>        /** <a name="line.422"></a>
+<FONT color="green">423</FONT>         * My pool.<a name="line.423"></a>
+<FONT color="green">424</FONT>         * @deprecated to be made private in pool 2.0 <a name="line.424"></a>
+<FONT color="green">425</FONT>         */<a name="line.425"></a>
+<FONT color="green">426</FONT>        @Deprecated<a name="line.426"></a>
+<FONT color="green">427</FONT>        protected Stack&lt;T&gt; _pool = null;<a name="line.427"></a>
+<FONT color="green">428</FONT>    <a name="line.428"></a>
+<FONT color="green">429</FONT>        /** <a name="line.429"></a>
+<FONT color="green">430</FONT>         * My {@link PoolableObjectFactory}.<a name="line.430"></a>
+<FONT color="green">431</FONT>         * @deprecated to be made private in pool 2.0 - use {@link #getFactory()}<a name="line.431"></a>
+<FONT color="green">432</FONT>         */<a name="line.432"></a>
+<FONT color="green">433</FONT>        @Deprecated<a name="line.433"></a>
+<FONT color="green">434</FONT>        protected PoolableObjectFactory&lt;T&gt; _factory = null;<a name="line.434"></a>
+<FONT color="green">435</FONT>    <a name="line.435"></a>
+<FONT color="green">436</FONT>        /** <a name="line.436"></a>
+<FONT color="green">437</FONT>         * The cap on the number of "sleeping" instances in the pool. <a name="line.437"></a>
+<FONT color="green">438</FONT>         * @deprecated to be made private in pool 2.0 - use {@link #getMaxSleeping()}<a name="line.438"></a>
+<FONT color="green">439</FONT>         */<a name="line.439"></a>
+<FONT color="green">440</FONT>        @Deprecated<a name="line.440"></a>
+<FONT color="green">441</FONT>        protected int _maxSleeping = DEFAULT_MAX_SLEEPING;<a name="line.441"></a>
+<FONT color="green">442</FONT>        <a name="line.442"></a>
+<FONT color="green">443</FONT>        /**<a name="line.443"></a>
+<FONT color="green">444</FONT>         * Number of objects borrowed but not yet returned to the pool.<a name="line.444"></a>
+<FONT color="green">445</FONT>         * @deprecated to be made private in pool 2.0 - use {@link #getNumActive()}<a name="line.445"></a>
+<FONT color="green">446</FONT>         */<a name="line.446"></a>
+<FONT color="green">447</FONT>        @Deprecated<a name="line.447"></a>
+<FONT color="green">448</FONT>        protected int _numActive = 0;<a name="line.448"></a>
+<FONT color="green">449</FONT>    <a name="line.449"></a>
+<FONT color="green">450</FONT>        /**<a name="line.450"></a>
+<FONT color="green">451</FONT>         * Returns the {@link PoolableObjectFactory} used by this pool to create and manage object instances.<a name="line.451"></a>
+<FONT color="green">452</FONT>         * <a name="line.452"></a>
+<FONT color="green">453</FONT>         * @return the factory<a name="line.453"></a>
+<FONT color="green">454</FONT>         * @since 1.5.5<a name="line.454"></a>
+<FONT color="green">455</FONT>         */<a name="line.455"></a>
+<FONT color="green">456</FONT>        public synchronized PoolableObjectFactory&lt;T&gt; getFactory() {<a name="line.456"></a>
+<FONT color="green">457</FONT>            return _factory;<a name="line.457"></a>
+<FONT color="green">458</FONT>        }<a name="line.458"></a>
+<FONT color="green">459</FONT>    <a name="line.459"></a>
+<FONT color="green">460</FONT>        /**<a name="line.460"></a>
+<FONT color="green">461</FONT>         * Returns the maximum number of idle instances in the pool.<a name="line.461"></a>
+<FONT color="green">462</FONT>         * <a name="line.462"></a>
+<FONT color="green">463</FONT>         * @return maxSleeping<a name="line.463"></a>
+<FONT color="green">464</FONT>         * @since 1.5.5<a name="line.464"></a>
+<FONT color="green">465</FONT>         */<a name="line.465"></a>
+<FONT color="green">466</FONT>        public int getMaxSleeping() {<a name="line.466"></a>
+<FONT color="green">467</FONT>            return _maxSleeping;<a name="line.467"></a>
+<FONT color="green">468</FONT>        }<a name="line.468"></a>
+<FONT color="green">469</FONT>    <a name="line.469"></a>
+<FONT color="green">470</FONT>       <a name="line.470"></a>
+<FONT color="green">471</FONT>    }<a name="line.471"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</PRE>
+</BODY>
+</HTML>

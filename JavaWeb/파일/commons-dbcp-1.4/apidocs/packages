@@ -1,0 +1,5 @@
+org.apache.commons.dbcp
+org.apache.commons.dbcp.cpdsadapter
+org.apache.commons.dbcp.datasources
+org.apache.commons.dbcp.managed
+org.apache.commons.jocl

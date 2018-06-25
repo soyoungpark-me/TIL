@@ -1,0 +1,28 @@
+-classpath '/Users/philsteitz/dbcp/tags/DBCP_1_4_RC7/target/classes:/Users/philsteitz/.m2/repository/org/apache/geronimo/specs/geronimo-jta_1.1_spec/1.1.1/geronimo-jta_1.1_spec-1.1.1.jar:/Users/philsteitz/.m2/repository/commons-pool/commons-pool/1.5.4/commons-pool-1.5.4.jar'
+ -encoding
+'iso-8859-1'
+-protected
+-source
+'1.6'
+-sourcepath
+'/Users/philsteitz/dbcp/tags/DBCP_1_4_RC7/src/java'
+-author
+-bottom
+'Copyright &#169; 2001-2010 <a href="http://www.apache.org/">The Apache Software Foundation</a>. All Rights Reserved.'
+-charset
+'ISO-8859-1'
+-d
+'/Users/philsteitz/dbcp/tags/DBCP_1_4_RC7/target/site/apidocs'
+-doctitle
+'Commons DBCP 1.4 API'
+-link
+'http://java.sun.com/j2se/1.5.0/docs/api'
+-link
+'http://commons.apache.org/pool/api-1.5.4'
+-link
+'http://java.sun.com/j2ee/sdk_1.3/techdocs/api'
+-linksource
+-use
+-version
+-windowtitle
+'Commons DBCP 1.4 API'
