@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1">
+
+		<title>구글맵 3</title>
+
+	    <style>
+	        html, body {
+	            width: 100%;
+	            height: 100%;
+	        }
+
+	        * {
+	            margin: 0;
+	            padding: 0;
+	        }
+
+	        #map {
+	            width: 100%;
+	            height: 95%;
+	        }
+	    </style>
+
+	    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAYGMYcNntnKSPKKiHqlSqebpvVWXl6P-8"></script>
+
+	    <script>
+	        function onLoad() {
+	            initMap();
+	        }
+
+	        var map;
+
+	        // 내 위치를 위한 좌표
+	        var centerLocation = {lat: <%= paramLatitude %>, lng: <%= paramLongitude %>};
+
+	        // 커피숍 위치를 위한 좌표
+	        var coffeeLocation = {lat: <%= result.geometry.coordinates[1] %>, lng: <%= result.geometry.coordinates[0] %>};
+
+	        // 사각형 검색 영역을 위한 좌표
+	        var coords =new google.maps.LatLngBounds(
+                    {lat:<%= paramTopLeftLatitude %>, lng:<%= paramTopLeftLongitude %>},
+                    {lat:<%= paramBottomRightLatitude %>, lng:<%= paramBottomRightLongitude %>}
+            );
+
+
+	        function initMap() {
+
+	            map = new google.maps.Map(document.getElementById('map'), {
+	                center: centerLocation,
+	                zoom: 17
+	            });
+
+	            // 내 위치 표시
+	            var myMarker = new google.maps.Marker({
+	                position:centerLocation,
+	                icon:'../../mylocation.png',
+	                animation:google.maps.Animation.BOUNCE
+	            });
+
+	            myMarker.setMap(map);
+
+	            // 커피숍 위치 표시
+	            var coffeeMarker = new google.maps.Marker({
+	                position:coffeeLocation,
+	                icon:'../../coffee.png'
+	            });
+
+	            coffeeMarker.setMap(map);
+
+				// 검색하려는 영역 표시
+                var rectangle = new google.maps.Rectangle({
+                    bounds:coords,
+                    strokeColor:"#0000FF",
+                    strokeOpacity:0.8,
+                    strokeWeight:2,
+                    fillColor:"#0000FF",
+                    fillOpacity:0.4
+                });
+
+                rectangle.setMap(map);
+	        }
+
+	    </script>
+
+	</head>
+	<body onload="onLoad()">
+
+		<p>사각형 박스 안의 커피숍 찾아 구글맵에 표시하기</p>
+    	<div id="map"></div>
+
+	</body>
+</html>

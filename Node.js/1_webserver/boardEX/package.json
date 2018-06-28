@@ -1,0 +1,28 @@
+{
+  "name": "moduleex",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "body-parser": "~1.18.2",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.9",
+    "ejs": "^2.5.7",
+    "errorhandler": "^1.5.0",
+    "express": "~4.15.5",
+    "express-error-handler": "^1.1.0",
+    "express-session": "^1.15.6",
+    "html-entities": "^1.2.1",
+    "jade": "~1.11.0",
+    "mongodb": "^3.0.0-rc0",
+    "mongoose": "^4.13.7",
+    "morgan": "~1.9.0",
+    "passport": "^0.4.0",
+    "passport-facebook": "^2.1.1",
+    "passport-local": "^1.0.0",
+    "serve-favicon": "~2.4.5"
+  }
+}

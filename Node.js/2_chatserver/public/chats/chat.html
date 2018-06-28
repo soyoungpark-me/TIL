@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  	<meta charset="UTF-8">
+  	<title>채팅 클라이언트 05</title>
+
+  	<script src="../jquery-3.1.1.min.js"></script>
+    <script src="../socket.io.js"></script>
+    <script>
+      var host;
+      var port;
+      var socket;
+
+      // 문서가 로딩된 후 실행됨.
+      $(function(){
+        $("#connectButton").bind('click', function(event){
+          println("connectButton이 클릭되었습니다.");
+          host = $("#hostInput").val();
+          port = $("#portInput").val();
+
+          connectToServer();
+        });
+
+        // 로그인 버튼을 클릭하면 처리
+        $("#loginButton").bind('click', function(event){
+          var id = $("#idInput").val();
+          var password = $("#passwordInput").val();
+          var alias = $("#aliasInput").val();
+          var today = $("#todayInput").val();
+
+          var output = {id : id, password : password, alias : alias, today : today};
+          console.log("서버로 보낼 데이터 : " + JSON.stringify(output));
+
+          if(socket == undefined){
+            alert("서버에 연결되어 있지 않습니다. 먼저 서버에 연결하세요.");
+            return;
+          }
+          socket.emit('login', output);
+        });
+
+        // 로그아웃 버튼을 클릭하면 처리
+        $("#logoutButton").bind('click', function(event){
+          var id = $("#idInput").val();
+
+          var output = {id : id};
+          console.log("서버로 보낼 데이터 : " + JSON.stringify(output));
+
+          if(socket == undefined){
+            alert("서버에 연결되어 있지 않습니다. 먼저 서버에 연결하세요.");
+            return;
+          }
+          socket.emit('logout', output);
+        });
+
+        // 방 만들기 버튼을 클릭하면 처리
+        $("#createRoomButton").bind('click', function(event){
+          var roomId = $("#roomIdInput").val();
+          var roomName = $("#roomNameInput").val();
+          var id = $("#idInput").val();
+
+          var output = {command : 'create', roomId : roomId, roomName : roomName, roomOwner : id};
+          console.log("서버로 보낼 데이터 : " + JSON.stringify(output));
+
+          if(socket == undefined){
+            alert("서버에 연결되어 있지 않습니다. 먼저 서버에 연결하세요.");
+            return;
+          }
+          socket.emit('room', output);
+        });
+
+        // 방 이름 바꾸기 버튼을 클릭하면 처리
+        $("#updateRoomButton").bind('click', function(event){
+          var roomId = $("#roomIdInput").val();
+          var roomName = $("#roomNameInput").val();
+          var id = $("#idInput").val();
+
+          var output = {command : 'update', roomId : roomId, roomName : roomName, roomOwner : id};
+          console.log("서버로 보낼 데이터 : " + JSON.stringify(output));
+
+          if(socket == undefined){
+            alert("서버에 연결되어 있지 않습니다. 먼저 서버에 연결하세요.");
+            return;
+          }
+          socket.emit('room', output);
+        });
+
+        // 방 없애기 버튼을 클릭하면 처리
+        $("#deleteRoomButton").bind('click', function(event){
+          var roomId = $("#roomIdInput").val();
+
+          var output = {command : 'update', roomId : roomId};
+          console.log("서버로 보낼 데이터 : " + JSON.stringify(output));
+
+          if(socket == undefined){
+            alert("서버에 연결되어 있지 않습니다. 먼저 서버에 연결하세요.");
+            return;
+          }
+          socket.emit('room', output);
+        });
+
+        // 방 입장하기 버튼을 클릭하면 처리
+        $("#joinRoomButton").bind('click', function(event){
+          var roomId = $("#roomIdInput").val();
+
+          var output = {command : 'join', roomId : roomId};
+          console.log("서버로 보낼 데이터 : " + JSON.stringify(output));
+
+          if(socket == undefined){
+            alert("서버에 연결되어 있지 않습니다. 먼저 서버에 연결하세요.");
+            return;
+          }
+          socket.emit('room', output);
+        });
+
+        // 방 나가기 버튼을 클릭하면 처리
+        $("#leaveRoomButton").bind('click', function(event){
+          var roomId = $("#roomIdInput").val();
+
+          var output = {command : 'leave', roomId : roomId};
+          console.log("서버로 보낼 데이터 : " + JSON.stringify(output));
+
+          if(socket == undefined){
+            alert("서버에 연결되어 있지 않습니다. 먼저 서버에 연결하세요.");
+            return;
+          }
+          socket.emit('room', output);
+        });
+
+        // 전송 버튼을 클릭하면 처리
+        $("#sendButton").bind('click', function(event){
+          // chattype 구별하기
+          var chattype = $("#chattype option:selected").val();
+          var sender = $("#senderInput").val();
+          var recepient = $("#recepientInput").val();
+          var data = $("#dataInput").val();
+
+          var output = {sender : sender, recepient : recepient, command : chattype,
+              type : 'text', data : data};
+
+          console.log("서버로 보낼 데이터 : " + JSON.stringify(output));
+
+          if(socket == undefined){
+            alert("서버에 연결되어 있지 않습니다. 먼저 서버에 연결하세요.");
+            return;
+          }
+          socket.emit('message', output);
+        });
+      });
+
+      // 서버에 연결하는 함수 정의
+      function connectToServer(){
+        var options = {'forceNew':true};
+        var url = 'http://' + host + ':' + port;
+        socket = io.connect(url);
+
+        console.dir(socket);
+
+        socket.on('connect', function(){
+          println("웹 소켓 서버에 연결되었습니다. : " + url);
+
+          socket.on('message', function(message){
+            console.log(JSON.stringify(message));
+
+            println("<p>수신 메시지" + message.sender + ', ' + message.recepient + ', '
+                + message.command + ', ' + message.type + ', ' + message.data + '</p>');
+          });
+        });
+
+        socket.on('disconnect', function(){
+          println("웹 소켓 연결이 종료되었습니다.");
+        });
+
+        socket.on('connect_failed', function (data) {
+            console.log(data || 'connect_failed');
+        });
+
+        socket.on('error', function (e) {
+          console.log('System', e ? e : 'A unknown error occurred');
+          alert(e);
+        });
+
+        socket.on('response', function(response){
+          console.log(JSON.stringify(response));
+          println("응답 메시지를 받았습니다. : " + response.command + ', ' +
+              response.code + ', ' + response.message);
+        });
+
+        // 그룹 채팅에서 방과 관련된 이벤트 처리
+        socket.on('room', function(data){
+          console.log(JSON.stringify(data));
+
+          println('<p>방 이벤트 : ' + data.command + '</p>');
+          println('<p>방 리스트를 받았습니다.</p>');
+
+          if(data.command == 'list'){
+            // 방 리스트 출력하기
+            var roomCount = data.rooms.length;
+            $("#roomList").html('<p>방 리스트 ' + roomCount + '개</p>');
+            for(var i = 0; i<roomCount; i++){
+              $("#roomList").append('<p>방 # ' + i + ' : ' + data.rooms[i].id + ', '
+                  + data.rooms[i].name + ', ' + data.rooms[i].owner + '</p>');
+            }
+          }
+        });
+      }
+
+      function println(data){
+        console.log(data);
+        $("#result").append('<p>' + data + '</p>');
+      }
+    </script>
+  </head>
+  <body>
+  	<h3>채팅 클라이언트 05 : 그룹 채팅하기</h3>
+  	<br>
+    <div>
+      <input type="text" id="hostInput" value="localhost" />
+      <input type="text" id="portInput" value="3000" />
+
+      <input type="button" id="connectButton" value="연결하기" />
+    </div>
+
+    <br>
+    <hr>
+    <br>
+
+    <div>
+  		<input type="text" id="idInput" value="test01" />
+  		<input type="password" id="passwordInput" value="123456" />
+  		<input type="text" id="aliasInput" value="이게 뭘까?" />
+  		<input type="text" id="todayInput" value="좋은 날!" />
+
+  		<input type="button" id="loginButton" value="로그인" />
+  		<input type="button" id="logoutButton" value="로그아웃" />
+  	</div>
+
+    <br>
+    <hr>
+    <br>
+
+    <div>
+      <input type="text" id="roomIdInput" value="meeting01" />
+      <input type="text" id="roomNameInput" value="새로운 방" />
+
+      <input type="button" id="createRoomButton" value="방만들기" />
+      <input type="button" id="updateRoomButton" value="방이름바꾸기" />
+      <input type="button" id="deleteRoomButton" value="방없애기" />
+    </div>
+
+    <br>
+    <hr>
+    <br>
+
+    <div id="roomList">
+    </div>
+
+    <br>
+    <hr>
+    <br>
+
+    <div>
+  		<input type="button" id="joinRoomButton" value="방입장하기" />
+  		<input type="button" id="leaveRoomButton" value="방나가기" />
+  	</div>
+
+    <br>
+    <hr>
+    <br>
+
+    <div>
+    	<div><span>보내는사람 아이디 :</span> <input type="text" id="senderInput" value="test01" /></div>
+	    <div><span>받는사람 아이디 :</span> <input type="text" id="recepientInput" value="ALL" /></div>
+
+	    <!-- command 선택 <select> 채팅, 그룹채팅 -->
+	    <select name="chattype" id="chattype">
+  			<option value="chat">채팅</option>
+  			<option value="groupchat" selected>그룹채팅</option>
+  		</select>
+
+  	  <div><span>메시지 데이터 :</span> <input type="text" id="dataInput" value="안녕!"/> </div>
+  		<br>
+  		<input type="button" id="sendButton" value="전송" />
+  	</div>
+
+    <br>
+    <hr>
+    <br>
+
+    <p>결과 : </p>
+    <div id="result"></div>
+  </body>
+</html>
