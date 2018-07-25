@@ -1,0 +1,48 @@
+* 몽구스 모듈 이용하기
+  - 몽구스 모듈은 관계형 데이터베이스의 테이블이나 엑셀의 시트처럼...
+  - 데이터를 조회할 때 어떤 속성이 들어있는 지를 미리 알고 있으면 편하니까 쓰는 것 같음.
+  - 몽고디비는 NoSQL이라 RDMBS와 다르게 조회 조건을 공통적으로 적용하기 어렵다.
+  - 그래서 스키마를 만들고 그 스키마에 따라 문서 객체를 저장하는 게 여러모로 좋음!
+    -> 오브젝트 맵퍼 : 자바스크립트 객체와 데이터베이스 객체를 서로 매칭해 바꿀 수 있게 하는 것.
+
+* mongoose 모듈에서 사용할 수 있는 대표적인 메소드는?
+  1. connect(uri, [option], [callback]) : mongoose를 사용해 데이터베이스에 연결.
+     연결된 후에는 mongoose.connection 객체를 통해 연결 관련 이벤트 처리.
+  2. Schema() : 스키마를 정의하는 생성자
+  3. model(name, [schema], [collection], [skipinit]) : 모델 정의! 컬렉션이 지정되면 해당 컬렉션을 사용함.
+
+* mongoose의 connection에 속에는 이벤트들.
+  - open : 데이터베이스가 연결되었을 때 발생
+  - error : 데이터베이스 연결이 제대로 되지 않을 때 발생
+  - disconnected : 데이터베이스 연결이 끊어졌을 때 발생!
+
+* mongoose 스키마에 들어가는 스키마 타입
+  - String : 문자열 타입
+  - Number : 숫자 타입
+  - Boolean : 이진 타입
+  - Array : 배열 타입
+  - Buffer : 버퍼 타입. 바이너리 객체를 저장할 수 있다.
+  - Date : 날짜 타입
+  - ObjectId : 각 문서마다 만들어지는 ObjectId를 저장할 수 있는 타입...이라고는 하는데 잘 이해는 안 됨.
+  - Mixed : 혼합 타입
+
+* mongoose 스키마 타입에 추가적으로 지정할 수 있는 속성들
+  - type : 자료형 지정 (기본!)
+  - required : 값이 true이면 무조건 들어가야 하는 속성이 됨.
+  - unique : 값이 true이면 중복이 불가능한 속성이 됨.
+
+* mongoose에서 데이터를 처리할 때 쓰는 대표적인 메소드들
+  - find([criteria], [callback]) : 조회 조건을 사용해 컬렉션의 데이터 조회. 조회 결과는 콜백 함수로 전달.
+  - save([options], [callback]) : >모델 인스턴스 객체<의 데이터 저장. 저장 결과는 콜백 함수로 전달.
+  - update([criteria], [doc], [options], [callback]) : 컬렉션의 데이터를 조회한 후 업데이트. where()메소드와 함께 사용.
+  - remove([criteria], [callback]) : 컬렉션의 데이터 삭제.
+
+  Ex) UserModel.where({id: '3457soso'}).update({name: '박기열}, function(...){})
+
+* mongoose에서는 스키마 객체에 메소드도 추가할 수 있다고 함!
+  - static(name, fn) : 모델 객체에서 사용할 수 있는 함수 등록. 함수의 이름과 함수 객체를 파라미터로 전달.
+  - method(name, fn) : 모델 인스턴스 객체에서 사용할 수 있는 함수 등록. 함수의 이름과 함수 객체를 파라미터로 전달.
+  - path(name)       : name을 가진 칼럼의 값을 확인함.
+
+* 레퍼런스 (Reference) : mongoose에서 외래키 역할을 함. 아른 컬렉션을 가리킴!
+  - 몽고디비의 여러 컬렉션 사이에서 데이터를 연결해 주는 키(Key) 역할을 함.
