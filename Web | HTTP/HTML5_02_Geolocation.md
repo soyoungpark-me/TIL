@@ -67,21 +67,4 @@
 
 2. 사용자에게 먼저 위치 수집 권한을 요청하는데, 이를 거절하면 어떻게 대처할지도 구현해놔야 한다.
 
-3. 정보 수집 중 오류가 발생할 경우 사용자에게 다시 재시도를 하거나, 새로고침 해버리는 게 좋은듯...​
-
-
-
-1. - ​
-
-------
-
-#### 참고 문헌
-
-- [Unikys : [HTML5 튜토리얼] navigator.geolocation 위치 정보 수집 API](http://unikys.tistory.com/375)
-
-------
-
-#### 참고 문헌
-
-- [생활코딩 : HTTPS와 SSL 인증서](https://opentutorials.org/course/228/4894)
-- [Outsider's Dev Story : HTTPS로 보안 강화하기](https://blog.outsider.ne.kr/1149)
+3. 정보 수집 중 오류가 발생할 경우 사용자에게 다시 재시도를 하거나, 새로고침 해버리는 게 좋은듯...

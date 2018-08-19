@@ -17,7 +17,6 @@
   - **인증서 위치** : ```/etc/letsencrypt/archive/도메인명/```
 
 
-
 ***
 
 ### 발급받은 인증서 적용하기
@@ -88,8 +87,8 @@
           listen [::]:443 ssl;
 
           ssl on;
-          ssl_certificate     /etc/letsencrypt/live/${도메인}/fullchain.$
-          ssl_certificate_key /etc/letsencrypt/live/${도메인}/privkey.pe$
+          ssl_certificate     /etc/letsencrypt/live/${도메인}/fullchain.pem;
+          ssl_certificate_key /etc/letsencrypt/live/${도메인}/privkey.pem;
           ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
           ssl_ciphers         HIGH:!aNULL:!MD5;
 
@@ -109,10 +108,21 @@
   2. 443 포트로 요청이 들어오면 발급 받은 인증서를 가지고 SSL 인증을 해주고, 
   3. ${포트}에 해당 서비스가 띄워져 있으니 거기로 넘긴다.
 
+
+
+
+### 자동 갱신 시키기
+
+```30 5 1 * * /bin/bash -l -c '/opt/letsencrypt/letsencrypt-auto renew --quiet --no-self-upgrade && sudo service nginx reload'```
+
+- 크론탭에 추가해 매월 자동으로 갱신되도록 한다
+
   ​
-
-
 
 ------
 
 #### 참고 문헌
+
+- [Nginx를 이용하는 Web application에 Let's encrypt SSL 인증서 적용하기](http://blog.kimgihong.com/devlog/AWS_EC2_letsencrypt_SSL)
+
+  ​
