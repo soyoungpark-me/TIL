@@ -1,3 +1,8 @@
+/******************************************************************************
+' 파일명    : RaceConditionTest.java
+' 작성자    : 201411203 박소영
+******************************************************************************/
+
 package _02_Java_IO;
 
 import java.io.*;
@@ -41,17 +46,16 @@ class ReturnDigest extends Thread {
 	public byte[] getDigest() {
 		return digest;
 	}
-
 }
 
 public class RaceConditionTest {
-
 	///*
 	public static void main(String[] args) throws InterruptedException {
 		for (String filename : args) {
 			//Calculate the digest
 			ReturnDigest dr = new ReturnDigest(filename);
 			dr.start();
+			dr.join(); // join을 통해 ReturnDigest이 작업을 모두 끝낼때까지 기다리도록 합니다.
 			
 			// Now print the result
 			StringBuilder result = new StringBuilder(filename);
@@ -59,9 +63,7 @@ public class RaceConditionTest {
 			byte[] digest = dr.getDigest();
 			System.out.println(digest);
 			result.append(DatatypeConverter.printHexBinary(digest));
-			System.out.println(result);
+			System.out.println(result+"\n");
 		}
-
 	}//*/
-	
 }
