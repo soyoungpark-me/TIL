@@ -1,8 +1,0 @@
-package dao;
-
-import ;
-
-public class UserDao {
-	public void add(User user) throws Class
-
-}

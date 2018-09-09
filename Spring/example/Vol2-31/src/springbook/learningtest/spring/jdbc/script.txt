@@ -1,6 +1,0 @@
-create table member (
-	id int primary key,
-	name varchar(100) not null,
-	point double not null,
-	birthday date not null
-);
