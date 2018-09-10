@@ -5,7 +5,111 @@
   <link rel="self" href="https://spring.io/blog.atom" />
   <id>http://spring.io/blog.atom</id>
   <icon>https://spring.io/favicon.ico</icon>
-  <updated>2018-09-07T15:15:11Z</updated>
+  <updated>2018-09-10T00:00:00Z</updated>
+  <entry>
+    <title>Bootiful GCP: Use Spring Cloud GCP to Connect to Other GCP Services (7/8)</title>
+    <link rel="alternate" href="https://spring.io/blog/2018/09/10/bootiful-gcp-use-spring-cloud-gcp-to-connect-to-other-gcp-services-7-8" />
+    <category term="engineering" label="Engineering" />
+    <author>
+      <name>Josh Long</name>
+    </author>
+    <id>tag:spring.io,2018-08-18:3369</id>
+    <updated>2018-09-10T00:00:00Z</updated>
+    <content type="html">&lt;blockquote&gt;
+  &lt;p&gt;Hi Spring fans! In this brief 8 part series we’re going to look at the Spring Cloud integration for Google Cloud Platform, called Spring Cloud GCP. &lt;a href="https://cloud.spring.io/spring-cloud-gcp/"&gt;Spring Cloud GCP&lt;/a&gt; represents a joint effort between Google and Pivotal that endeavors to provide a first class experience for Spring Cloud developers when using the Google Cloud Platform. Pivotal Cloud Foundry users will enjoy an even &lt;a href="https://docs.pivotal.io/partners/gcp-sb/index.html"&gt;easier integration with the GCP service broker&lt;/a&gt;. I wrote these installments with input from Google Cloud Developer Advocate, and my buddy, &lt;a href="http://twitter.com/saturnism"&gt;Ray Tsang&lt;/a&gt;. You can also catch a walkthrough of Spring Cloud GCP in our Google Next 2018 session, &lt;a href="https://www.youtube.com/watch?v=2Jo3vy7iQf8"&gt;Bootiful Google Cloud Platform&lt;/a&gt;. Thanks buddy! As always, &lt;a href="http://twitter.com/starbuxman"&gt;I&amp;rsquo;d love to hear from you if you have feedback&lt;/a&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;The Spring Cloud GCP project strives to provide integrations with Spring and some of the GCP services that map well to Spring. But GCP is &lt;em&gt;vast&lt;/em&gt;! There are a good deal many other services out there that you can consume via &lt;a href="https://github.com/GoogleCloudPlatform/google-cloud-java/"&gt;their direct Java SDK&lt;/a&gt; or even through their REST APIs, directly. Spring Cloud GCP can make working with those APIs a bit easier, too! In this section, we’re going to integrate with the Google Cloud Vision API which supports analyzing images and doing feature detection.&lt;/p&gt;
+&lt;p&gt;As always, you will need to enable the API:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="prettyprint shell"&gt;gcloud services enable vision.googleapis.com
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;When you use the auto-configurations in Spring Cloud GCP they conveniently obtain the required OAuth scopes to work with a given API on your behalf, and you never need to worry about it. We’ll need to do this work ourselves for other services. This is easy enough, thankfully. Use the &lt;code&gt;spring.cloud.gcp.credentials.scopes&lt;/code&gt; property to obtain a general, platform-wide, catch-all scope that can be used to request permission for all basic Google Cloud Platform APIs.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;src/main/resources/applications.properties.&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class="prettyprint java"&gt;spring.cloud.gcp.credentials.scopes=https://www.googleapis.com/auth/cloud-platform&#xD;
+spring.cloud.gcp.credentials.encoded-key=FIXME
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;And.. that’s it! Now you can use the API as you like. Let’s standup a simple REST API to which you can post an image as a multipart file upload and have the Google Cloud Vision API do feature detection.&lt;/p&gt;
+&lt;pre&gt;&lt;code class="prettyprint java"&gt;package com.example.gcp.vision;&#xD;
+&#xD;
+import com.google.api.gax.core.CredentialsProvider;&#xD;
+import com.google.cloud.vision.v1.*;&#xD;
+import com.google.protobuf.ByteString;&#xD;
+import lombok.extern.slf4j.Slf4j;&#xD;
+import org.springframework.boot.SpringApplication;&#xD;
+import org.springframework.boot.autoconfigure.SpringBootApplication;&#xD;
+import org.springframework.context.annotation.Bean;&#xD;
+import org.springframework.web.bind.annotation.PostMapping;&#xD;
+import org.springframework.web.bind.annotation.RequestParam;&#xD;
+import org.springframework.web.bind.annotation.RestController;&#xD;
+import org.springframework.web.multipart.MultipartFile;&#xD;
+&#xD;
+import java.io.IOException;&#xD;
+import java.util.Collections;&#xD;
+&#xD;
+// curl -F &amp;quot;image=@$HOME/Pictures/soup.jpg&amp;quot; http://localhost:8080/analyze&#xD;
+@SpringBootApplication&#xD;
+public class VisionApplication {&#xD;
+&#xD;
+        &#xD;
+        @Bean&#xD;
+        ImageAnnotatorClient imageAnnotatorClient(&#xD;
+            CredentialsProvider credentialsProvider) throws IOException {&#xD;
+                ImageAnnotatorSettings settings = ImageAnnotatorSettings&#xD;
+                    .newBuilder()&#xD;
+                    .setCredentialsProvider(credentialsProvider)&#xD;
+                    .build();&#xD;
+                return ImageAnnotatorClient.create(settings);&#xD;
+        }&#xD;
+&#xD;
+        @Slf4j&#xD;
+        @RestController&#xD;
+        public static class ImageAnalyzerRestController {&#xD;
+&#xD;
+                private final ImageAnnotatorClient client;&#xD;
+&#xD;
+                &#xD;
+                private final Feature labelDetection = Feature.newBuilder().setType(Feature.Type.LABEL_DETECTION).build();&#xD;
+                private final Feature textDetection = Feature.newBuilder().setType(Feature.Type.DOCUMENT_TEXT_DETECTION).build();&#xD;
+&#xD;
+                ImageAnalyzerRestController(ImageAnnotatorClient client) {&#xD;
+                        this.client = client;&#xD;
+                }&#xD;
+&#xD;
+                @PostMapping(&amp;quot;/analyze&amp;quot;)&#xD;
+                String analyze(@RequestParam MultipartFile image) throws IOException {&#xD;
+                        &#xD;
+                        byte[] data = image.getBytes();&#xD;
+                        ByteString imgBytes = ByteString.copyFrom(data);&#xD;
+                        Image img = Image.newBuilder().setContent(imgBytes).build();&#xD;
+&#xD;
+                        AnnotateImageRequest request = AnnotateImageRequest&#xD;
+                            .newBuilder()&#xD;
+                            .addFeatures(this.labelDetection)&#xD;
+                            .addFeatures(this.textDetection)&#xD;
+                            .setImage(img)&#xD;
+                            .build();&#xD;
+                        BatchAnnotateImagesResponse responses = this.client&#xD;
+                            .batchAnnotateImages(Collections.singletonList(request));&#xD;
+                        AnnotateImageResponse reply = responses.getResponses(0);&#xD;
+                        return reply.toString();&#xD;
+                }&#xD;
+        }&#xD;
+&#xD;
+        public static void main(String args[]) {&#xD;
+                SpringApplication.run(VisionApplication.class, args);&#xD;
+        }&#xD;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+  &lt;li&gt;we’re configuring the Google Cloud Vision client manually. This is more work than you might do if you had a Spring Boot starter, but it’s definitely not bad!&lt;/li&gt;
+  &lt;li&gt;what kind of analysis do we want the client to do?&lt;/li&gt;
+  &lt;li&gt;Spring MVC can turn multipart file uploads into a &lt;code&gt;MultipartFile&lt;/code&gt; from which we can easily extract bytes to feed into this API.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;You can POST an image to this endpoint using &lt;code&gt;curl&lt;/code&gt; or any other general purpose HTTP client. Here’s how it would work with:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;curl&lt;/code&gt;:&lt;/p&gt;
+&lt;pre&gt;&lt;code class="prettyprint shell"&gt;curl  -F &amp;quot;image=@/home/jlong/Desktop/soup.jpg&amp;quot; http://localhost:8080/analyze
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;There are a &lt;em&gt;zillion&lt;/em&gt; other APIs with whom you might work! Here we are only just beginning to scratch the surface of what’s possible. Check &lt;a href="https://cloud.google.com/products/"&gt;out this service catalog&lt;/a&gt;! There are things like Google Cloud DataStore, Google Storage, Firebase, BigQuery, Apigee, video streaming services, IoT services, machine learning, Google Tensorflow, Google Dataflow, Google Cloud AutoML, Cloud Natural Language, Cloud Speech-to-Text, Cloud Text-to-Speech, Genomics APIs, Video Intelligence, and &lt;em&gt;so&lt;/em&gt; much more.&lt;/p&gt;</content>
+  </entry>
   <entry>
     <title>Spring Framework 5.1 RC3, 5.0.9 and 4.3.19 available now</title>
     <link rel="alternate" href="https://spring.io/blog/2018/09/07/spring-framework-5-1-rc3-5-0-9-and-4-3-19-available-now" />
@@ -1745,240 +1849,5 @@ JwtDecoder jwtDecoder() {
 &amp;lt;/project&amp;gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;In this installment we&amp;rsquo;ve looked at how to setup a basic Spring Cloud GCP project. In the next installment, this Thursday, we&amp;rsquo;ll look at using Spring Cloud CCP to talk to a SQL database like MySQL or PostgreSQL.&lt;/p&gt;</content>
-  </entry>
-  <entry>
-    <title>Spring Session Bean-M1 and Apple-SR4 Released</title>
-    <link rel="alternate" href="https://spring.io/blog/2018/08/17/spring-session-bean-m1-and-apple-sr4-released" />
-    <category term="releases" label="Releases" />
-    <author>
-      <name>Rob Winch</name>
-    </author>
-    <id>tag:spring.io,2018-08-17:3363</id>
-    <updated>2018-08-17T13:47:29Z</updated>
-    <content type="html">&lt;div class="paragraph"&gt;
-&lt;p&gt;&lt;em&gt;This post was authored by &lt;a href="https://github.com/vpavic"&gt;Vedran Pavić&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
-&lt;/div&gt;
-&lt;div class="paragraph"&gt;
-&lt;p&gt;On behalf of the community I&amp;#8217;m pleased to announce the releases of Spring Session BOM &lt;code&gt;Bean-M1&lt;/code&gt; and &lt;code&gt;Apple-SR4&lt;/code&gt;. Spring Boot users will be happy to learn that these release were picked up in recent &lt;code&gt;2.1.0.M1&lt;/code&gt; and &lt;code&gt;2.0.4.RELEASE&lt;/code&gt; releases of Spring Boot, respectively.&lt;/p&gt;
-&lt;/div&gt;
-&lt;div class="sect1"&gt;
-&lt;h2 id="spring-session-code-bean-m1-code"&gt;&lt;a class="anchor" href="#spring-session-code-bean-m1-code"&gt;&lt;/a&gt;Spring Session &lt;code&gt;Bean-M1&lt;/code&gt;&lt;/h2&gt;
-&lt;div class="sectionbody"&gt;
-&lt;div class="paragraph"&gt;
-&lt;p&gt;The &lt;code&gt;Bean-M1&lt;/code&gt; is first milestone release that is based on Spring Session &lt;code&gt;2.1.0.M1&lt;/code&gt;.&lt;/p&gt;
-&lt;/div&gt;
-&lt;div class="paragraph"&gt;
-&lt;p&gt;The following table provides an overview of all the included modules and their respective versions:&lt;/p&gt;
-&lt;/div&gt;
-&lt;table class="tableblock frame-all grid-all spread"&gt;
-&lt;colgroup&gt;
-&lt;col style="width: 50%;"&gt;
-&lt;col style="width: 50%;"&gt;
-&lt;/colgroup&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th class="tableblock halign-left valign-top"&gt;Module&lt;/th&gt;
-&lt;th class="tableblock halign-left valign-top"&gt;Version&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;Spring Session Core&lt;/p&gt;&lt;/td&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;&lt;code&gt;2.1.0.M1&lt;/code&gt;&lt;/p&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;Spring Session Data GemFire&lt;/p&gt;&lt;/td&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;&lt;code&gt;2.0.3.RELEASE&lt;/code&gt;&lt;/p&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;Spring Session Data Geode&lt;/p&gt;&lt;/td&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;&lt;code&gt;2.0.3.RELEASE&lt;/code&gt;&lt;/p&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;Spring Session Data MongoDB&lt;/p&gt;&lt;/td&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;&lt;code&gt;2.0.2.RELEASE&lt;/code&gt;&lt;/p&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;Spring Session Data Redis&lt;/p&gt;&lt;/td&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;&lt;code&gt;2.1.0.M1&lt;/code&gt;&lt;/p&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;Spring Session Hazelcast&lt;/p&gt;&lt;/td&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;&lt;code&gt;2.1.0.M1&lt;/code&gt;&lt;/p&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;Spring Session JDBC&lt;/p&gt;&lt;/td&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;&lt;code&gt;2.1.0.M1&lt;/code&gt;&lt;/p&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;div class="sect2"&gt;
-&lt;h3 id="spring-session-code-2-1-0-m1-code"&gt;&lt;a class="anchor" href="#spring-session-code-2-1-0-m1-code"&gt;&lt;/a&gt;Spring Session &lt;code&gt;2.1.0.M1&lt;/code&gt;&lt;/h3&gt;
-&lt;div class="paragraph"&gt;
-&lt;p&gt;The &lt;code&gt;2.1.0.M1&lt;/code&gt; is the first milestone release in &lt;code&gt;2.1.x&lt;/code&gt; lifecycle. Highlights of this release are support for Same-Site Cookie, which is another mechanism that &lt;a href="https://scotthelme.co.uk/csrf-is-dead/"&gt;helps developers to protect from Cross-Site Request Forgery&lt;/a&gt;, and support for &lt;a href="https://javaee.github.io/javaee-spec/javadocs/javax/servlet/http/HttpSessionBindingListener.html"&gt;&lt;code&gt;HttpSessionBindingListener&lt;/code&gt;&lt;/a&gt;. The release also includes the usual dependency upgrades, including picking up Spring Framework &lt;code&gt;5.1.0.RC1&lt;/code&gt; as a baseline. You can find the complete details of the release in the &lt;a href="https://github.com/spring-projects/spring-session/milestone/29?closed=1"&gt;changelog&lt;/a&gt;.&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="sect2"&gt;
-&lt;h3 id="using-the-bom"&gt;&lt;a class="anchor" href="#using-the-bom"&gt;&lt;/a&gt;Using the BOM&lt;/h3&gt;
-&lt;div class="paragraph"&gt;
-&lt;p&gt;With Maven:&lt;/p&gt;
-&lt;/div&gt;
-&lt;div class="listingblock"&gt;
-&lt;div class="content"&gt;
-&lt;pre class="prettyprint highlight"&gt;&lt;code class="language-xml" data-lang="xml"&gt;&amp;lt;dependencyManagement&amp;gt;
-	&amp;lt;dependencies&amp;gt;
-		&amp;lt;dependency&amp;gt;
-			&amp;lt;groupId&amp;gt;org.springframework.session&amp;lt;/groupId&amp;gt;
-			&amp;lt;artifactId&amp;gt;spring-session-bom&amp;lt;/artifactId&amp;gt;
-			&amp;lt;version&amp;gt;Bean-M1&amp;lt;/version&amp;gt;
-			&amp;lt;type&amp;gt;pom&amp;lt;/type&amp;gt;
-			&amp;lt;scope&amp;gt;import&amp;lt;/scope&amp;gt;
-		&amp;lt;/dependency&amp;gt;
-	&amp;lt;/dependencies&amp;gt;
-&amp;lt;/dependencyManagement&amp;gt;
-&amp;lt;dependencies&amp;gt;
-	&amp;lt;dependency&amp;gt;
-		&amp;lt;groupId&amp;gt;org.springframework.session&amp;lt;/groupId&amp;gt;
-		&amp;lt;artifactId&amp;gt;spring-session-data-redis&amp;lt;/artifactId&amp;gt;
-	&amp;lt;/dependency&amp;gt;
-	...
-&amp;lt;/dependencies&amp;gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="paragraph"&gt;
-&lt;p&gt;With Gradle:&lt;/p&gt;
-&lt;/div&gt;
-&lt;div class="listingblock"&gt;
-&lt;div class="content"&gt;
-&lt;pre class="prettyprint highlight"&gt;&lt;code class="language-gradle" data-lang="gradle"&gt;plugins {
-	id 'io.spring.dependency-management' version '1.0.6.RELEASE'
-}
-
-dependencyManagement {
-	imports {
-		mavenBom 'org.springframework.session:spring-session-bom:Bean-M1'
-	}
-}
-
-dependencies {
-	compile 'org.springframework.session:spring-session-data-redis'
-	...
-}&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="sect1"&gt;
-&lt;h2 id="spring-session-code-apple-sr4-code"&gt;&lt;a class="anchor" href="#spring-session-code-apple-sr4-code"&gt;&lt;/a&gt;Spring Session &lt;code&gt;Apple-SR4&lt;/code&gt;&lt;/h2&gt;
-&lt;div class="sectionbody"&gt;
-&lt;div class="paragraph"&gt;
-&lt;p&gt;The &lt;code&gt;Apple-SR4&lt;/code&gt; is a maintenance release includes an update of Spring Session core modules (which include Data Redis, Hazelcast and JDBC) to &lt;code&gt;2.0.5.RELEASE&lt;/code&gt; and Spring Session Data Geode to &lt;code&gt;2.0.3.RELEASE&lt;/code&gt;.&lt;/p&gt;
-&lt;/div&gt;
-&lt;div class="paragraph"&gt;
-&lt;p&gt;The following table provides an overview of all the included modules and their respective versions:&lt;/p&gt;
-&lt;/div&gt;
-&lt;table class="tableblock frame-all grid-all spread"&gt;
-&lt;colgroup&gt;
-&lt;col style="width: 50%;"&gt;
-&lt;col style="width: 50%;"&gt;
-&lt;/colgroup&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th class="tableblock halign-left valign-top"&gt;Module&lt;/th&gt;
-&lt;th class="tableblock halign-left valign-top"&gt;Version&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;Spring Session Core&lt;/p&gt;&lt;/td&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;&lt;code&gt;2.0.5.RELEASE&lt;/code&gt;&lt;/p&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;Spring Session Data GemFire&lt;/p&gt;&lt;/td&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;&lt;code&gt;2.0.3.RELEASE&lt;/code&gt;&lt;/p&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;Spring Session Data Geode&lt;/p&gt;&lt;/td&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;&lt;code&gt;2.0.3.RELEASE&lt;/code&gt;&lt;/p&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;Spring Session Data MongoDB&lt;/p&gt;&lt;/td&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;&lt;code&gt;2.0.2.RELEASE&lt;/code&gt;&lt;/p&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;Spring Session Data Redis&lt;/p&gt;&lt;/td&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;&lt;code&gt;2.0.5.RELEASE&lt;/code&gt;&lt;/p&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;Spring Session Hazelcast&lt;/p&gt;&lt;/td&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;&lt;code&gt;2.0.5.RELEASE&lt;/code&gt;&lt;/p&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;Spring Session JDBC&lt;/p&gt;&lt;/td&gt;
-&lt;td class="tableblock halign-left valign-top"&gt;&lt;p class="tableblock"&gt;&lt;code&gt;2.0.5.RELEASE&lt;/code&gt;&lt;/p&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;div class="sect2"&gt;
-&lt;h3 id="spring-session-code-2-0-5-release-code"&gt;&lt;a class="anchor" href="#spring-session-code-2-0-5-release-code"&gt;&lt;/a&gt;Spring Session &lt;code&gt;2.0.5.RELEASE&lt;/code&gt;&lt;/h3&gt;
-&lt;div class="paragraph"&gt;
-&lt;p&gt;The &lt;code&gt;2.0.5.RELEASE&lt;/code&gt; maintenance release contains a couple of bug fixes for reactive Redis session store, improved support for Hazelcast client-server topology as well as dependency upgrades. You can find the complete details of the release in the &lt;a href="https://github.com/spring-projects/spring-session/milestone/38?closed=1"&gt;changelog&lt;/a&gt;.&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="sect2"&gt;
-&lt;h3 id="using-the-bom-2"&gt;&lt;a class="anchor" href="#using-the-bom-2"&gt;&lt;/a&gt;Using the BOM&lt;/h3&gt;
-&lt;div class="paragraph"&gt;
-&lt;p&gt;With Maven:&lt;/p&gt;
-&lt;/div&gt;
-&lt;div class="listingblock"&gt;
-&lt;div class="content"&gt;
-&lt;pre class="prettyprint highlight"&gt;&lt;code class="language-xml" data-lang="xml"&gt;&amp;lt;dependencyManagement&amp;gt;
-	&amp;lt;dependencies&amp;gt;
-		&amp;lt;dependency&amp;gt;
-			&amp;lt;groupId&amp;gt;org.springframework.session&amp;lt;/groupId&amp;gt;
-			&amp;lt;artifactId&amp;gt;spring-session-bom&amp;lt;/artifactId&amp;gt;
-			&amp;lt;version&amp;gt;Apple-SR4&amp;lt;/version&amp;gt;
-			&amp;lt;type&amp;gt;pom&amp;lt;/type&amp;gt;
-			&amp;lt;scope&amp;gt;import&amp;lt;/scope&amp;gt;
-		&amp;lt;/dependency&amp;gt;
-	&amp;lt;/dependencies&amp;gt;
-&amp;lt;/dependencyManagement&amp;gt;
-&amp;lt;dependencies&amp;gt;
-	&amp;lt;dependency&amp;gt;
-		&amp;lt;groupId&amp;gt;org.springframework.session&amp;lt;/groupId&amp;gt;
-		&amp;lt;artifactId&amp;gt;spring-session-data-redis&amp;lt;/artifactId&amp;gt;
-	&amp;lt;/dependency&amp;gt;
-	...
-&amp;lt;/dependencies&amp;gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="paragraph"&gt;
-&lt;p&gt;With Gradle:&lt;/p&gt;
-&lt;/div&gt;
-&lt;div class="listingblock"&gt;
-&lt;div class="content"&gt;
-&lt;pre class="prettyprint highlight"&gt;&lt;code class="language-gradle" data-lang="gradle"&gt;plugins {
-	id 'io.spring.dependency-management' version '1.0.6.RELEASE'
-}
-
-dependencyManagement {
-	imports {
-		mavenBom 'org.springframework.session:spring-session-bom:Apple-SR4'
-	}
-}
-
-dependencies {
-	compile 'org.springframework.session:spring-session-data-redis'
-	...
-}&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class="paragraph"&gt;
-&lt;p&gt;&lt;a href="https://projects.spring.io/spring-session/"&gt;Project Page&lt;/a&gt; | &lt;a href="https://docs.spring.io/spring-session/docs/2.0.5.RELEASE/reference/html5/"&gt;Documentation&lt;/a&gt; | &lt;a href="https://github.com/spring-projects/spring-session"&gt;GitHub&lt;/a&gt; | &lt;a href="https://github.com/spring-projects/spring-session/issues"&gt;Issues&lt;/a&gt; | &lt;a href="https://stackoverflow.com/questions/tagged/spring-session"&gt;Stack Overflow&lt;/a&gt; | &lt;a href="https://gitter.im/spring-projects/spring-session"&gt;Gitter&lt;/a&gt;&lt;/p&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;/div&gt;</content>
   </entry>
 </feed>
