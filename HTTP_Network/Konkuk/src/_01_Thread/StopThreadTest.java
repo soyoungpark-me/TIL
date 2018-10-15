@@ -15,7 +15,7 @@ class StopThread implements Runnable {
                 e.printStackTrace();
             }
         }
-        System.out.println("THread is dead..");
+        System.out.println("Thread is dead..");
     }
 
     public void stop() { // 이 메소드를 호출해 StopThread를 멈춘다.

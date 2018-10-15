@@ -10,6 +10,8 @@ public class ReverseTest {
                         InetAddress ia = InetAddress.getByName("konkuk.ac.kr");
             System.out.println(ia.getCanonicalHostName());
             System.out.println(ia.getHostName());
+            // getCanocicalHostName은 가능하면 DNS에 요청해 정보를 가져오며
+            // 이미 저장된 호스트 네임이 있는 경우 갱신한다.
         } catch (UnknownHostException ex) {}
     }
 }
