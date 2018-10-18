@@ -21,6 +21,7 @@ public class ContentTypePreferenceTest {
 
             System.out.println("I got a " + o.getClass().getName());
 
+            // Object가 반환된 결과는 instanceof 연산자로 확인해야 한다.
             if (o instanceof String) {
                 System.out.println(o);
             } else if (o instanceof Reader) {

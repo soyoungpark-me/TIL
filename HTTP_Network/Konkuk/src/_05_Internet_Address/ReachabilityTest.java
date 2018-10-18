@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.rmi.UnexpectedException;
 
+// ttl : 몇 홉 만에 도달할 수 있는지, timeout : 특정 시간 내에 도달할 수 있는지
 public class ReachabilityTest {
     public static void main(String[] args) {
         try {
@@ -16,7 +17,7 @@ public class ReachabilityTest {
             int timeout = 5000;
             int ttl = 10;
 
-            if (address.isReachable(timeout)) {
+            if (address.isReachable(timeout)) { // 도달할 수 있을 경우 true, 불가능하면 false 리턴
                 System.out.println(address.getHostName() + " can be reached");
             } else {
                 System.out.println(address.getHostName() + " cannot be reached");

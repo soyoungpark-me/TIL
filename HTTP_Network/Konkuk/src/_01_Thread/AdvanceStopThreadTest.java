@@ -9,7 +9,7 @@ class AdvanceStopThread implements Runnable {
             // 만약 이 스레드에서 interrupt() 메소드를 호출하면
             // isInterrupted 메소드는 ture를 리턴해서 while문을 빠져나온다!
 
-            while (!Thread.currentThread().isInterrupted()) {
+            while (!Thread.currentThread().isInterrupted()) {   // 아직 인터럽트 되지 않았다면
                 System.out.println("Thread is alive..");
                 Thread.sleep(1000);
             }
@@ -41,7 +41,7 @@ public class AdvanceStopThreadTest {
             e.printStackTrace();
         }
 
-        // AdvancedStopThread를 정지시킴!
+        // interrupt 함수를 이용해 AdvancedStopThread를 정지시킴!
         thread.interrupt();
     }
 }

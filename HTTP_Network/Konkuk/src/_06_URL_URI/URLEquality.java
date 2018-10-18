@@ -10,6 +10,7 @@ public class URLEquality {
             URL ibiblio = new URL("http://ibiblio.org/");
 
             /* same file 출력 */
+            // 왜
             if (ibiblio.equals(www)) {
                 System.out.println("equals() : " + ibiblio + " is the same as " + www);
             } else {
@@ -22,7 +23,6 @@ public class URLEquality {
             } else {
                 System.out.println("sameFile() : " + ibiblio + " is not the same as " + www);
             }
-
 
             // equals는 fragment가 있는지 아닌지로 갈린다.
             // hostname 뿐 아니라 뒤에 있는 부분까지 확인한다.

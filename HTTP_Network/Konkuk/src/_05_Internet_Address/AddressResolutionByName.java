@@ -15,7 +15,7 @@ public class AddressResolutionByName {
             InetAddress address2 = InetAddress.getByName("13.125.78.77");
             // getByName은 hostname을 넣어줘도 되고, ip를 string으로 넣어줘도 된다.
             // ip 주소를 넣어도 이를 InetAddress 객체로 만들어서 반납한다.
-            // 이럴 경우 hostname은 빈 칸이 된다. hostname이 굳이 필요 없는 상황이기 때문.
+            // 이럴 경우 hostname은 빈 칸이 된다. hostname이 굳이 필요 없는 상황이기 때문. (DNS 쿼리를 하지 않는다)
             // 궁극적으로 필요한 건 ip주소지, hostname이 아니다.
 
             System.out.println(address2);

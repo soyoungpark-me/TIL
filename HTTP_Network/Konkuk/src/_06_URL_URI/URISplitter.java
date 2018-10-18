@@ -3,6 +3,7 @@ package _06_URL_URI;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+// URI의 구성 요소
 public class URISplitter {
     public static void main (String args[]) {
         // arg를 가져와서 각 arg마다 URI 객체를 만든다.
@@ -21,6 +22,7 @@ public class URISplitter {
                     System.out.println("The scheme specific part is " + u.getSchemeSpecificPart());
                     System.out.println("The fragment ID is " + u.getFragment());
                 } else {
+                    // 계층적 URI일 경우 host, userInfo, port, authority, query, fragment, path를 가져올 수 있다.
                     System.out.println("This is a hierarchical URI");
                     System.out.println("The scheme is " + u.getScheme());
 
@@ -30,7 +32,7 @@ public class URISplitter {
                         System.out.println("The host is " + u.getHost());
                         System.out.println("The user info is " + u.getUserInfo());
                         System.out.println("The port is " + u.getPort());
-                    } catch (URISyntaxException ex) {
+                    } catch (URISyntaxException ex) { // 기관 정보를 분석할 수 없는 경우 발생한다.
                         System.out.println("The authority is " + u.getAuthority());
                     }
                     System.out.println("The path is " + u.getPath());

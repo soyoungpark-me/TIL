@@ -37,12 +37,12 @@ public class ChildTest {
 		Parent2 p2 = new Parent2();
 		System.out.println("----- 3 -----");
 		System.out.println(p2.i);		// 7
-		System.out.println(p2.get());	// 5
+		System.out.println(p2.get());	// 7
 		
 		System.out.println("----- 4 -----");
 		// print의 인자로 들어가면 Parent2로 형변환되므로
 		// 멤버 변수의 경우 Parent의 멤버 변수가 되고, 메소드는 Child의 메소드가 된다.
 		print(c);						// 7, 5
-		print(p2);						// 7, 5
+		print(p2);						// 7, 7
 	}
 }

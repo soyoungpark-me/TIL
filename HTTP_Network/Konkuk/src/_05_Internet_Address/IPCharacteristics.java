@@ -3,6 +3,7 @@ package _05_Internet_Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+// IP 주소의 특성을 검사한다.
 public class IPCharacteristics {
     public static void main(String[] args) {
         try {
