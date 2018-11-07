@@ -19,7 +19,8 @@ public class DaytimeClient {
         Socket socket = null;
 
         try {
-            socket = new Socket(hostname, 13);
+            socket = new Socket(hostname, 2000);
+//            socket = new Socket("114.70.22.18", 13);
             socket.setSoTimeout(10000); // 단위는 ms이다. 연결을 시도하고 10초를 넘어가면 exception이 발생한다.
             InputStream in = socket.getInputStream();
             StringBuilder time = new StringBuilder();
