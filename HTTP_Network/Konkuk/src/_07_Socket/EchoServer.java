@@ -33,55 +33,55 @@ public class EchoServer {
         }
 
         while (true) {
-            try {
-                selector.select();
-            } catch (IOException e) {
-                e.printStackTrace();
-                break;
-            }
-
-            Set<SelectionKey> readyKeys = selector.selectedKeys();
-            Iterator<SelectionKey> iterator = readyKeys.iterator();
-
-            while (iterator.hasNext()) {
-                SelectionKey key = iterator.next();
-                iterator.remove();
-
-                try {
-                    if (key.isAcceptable()) {
-                        ServerSocketChannel server = (ServerSocketChannel) key.channel();
-                        SocketChannel client = server.accept();
-                        System.out.println("Accepted connection from " + client);
-
-                        client.configureBlocking(false);
-                        SelectionKey clientKey = client.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ);
-                        ByteBuffer buffer = ByteBuffer.allocate(100);
-                        clientKey.attach(buffer);
-                    }
-
-                    if (key.isReadable()) {
-                        SocketChannel client = (SocketChannel) key.channel();
-                        ByteBuffer output = (ByteBuffer) key.attachment();
-
-                        client.read(output);
-                    }
-
-                    if (key.isWritable()) {
-                        SocketChannel client = (SocketChannel) key.channel();
-                        ByteBuffer output = (ByteBuffer) key.attachment();
-
-                        output.flip();
-                        client.write(output);
-                        output.compact();
-                    }
-                } catch (IOException e) {
-                    key.cancel();
-
-                    try {
-                        key.channel().close();
-                    } catch (IOException ex) {}
-                }
-            }
+//            try {
+//                selector.select();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//                break;
+//            }
+//
+//            Set<SelectionKey> readyKeys = selector.selectedKeys();
+//            Iterator<SelectionKey> iterator = readyKeys.iterator();
+//
+//            while (iterator.hasNext()) {
+//                SelectionKey key = iterator.next();
+//                iterator.remove();
+//
+//                try {
+//                    if (key.isAcceptable()) {
+//                        ServerSocketChannel server = (ServerSocketChannel) key.channel();
+//                        SocketChannel client = server.accept();
+//                        System.out.println("Accepted connection from " + client);
+//
+//                        client.configureBlocking(false);
+//                        SelectionKey clientKey = client.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+//                        ByteBuffer buffer = ByteBuffer.allocate(100);
+//                        clientKey.attach(buffer);
+//                    }
+//
+//                    if (key.isReadable()) {
+//                        SocketChannel client = (SocketChannel) key.channel();
+//                        ByteBuffer output = (ByteBuffer) key.attachment();
+//
+//                        client.read(output);
+//                    }
+//
+//                    if (key.isWritable()) {
+//                        SocketChannel client = (SocketChannel) key.channel();
+//                        ByteBuffer output = (ByteBuffer) key.attachment();
+//
+//                        output.flip();
+//                        client.write(output);
+//                        output.compact();
+//                    }
+//                } catch (IOException e) {
+//                    key.cancel();
+//
+//                    try {
+//                        key.channel().close();
+//                    } catch (IOException ex) {}
+//                }
+//            }
         }
     }
 }

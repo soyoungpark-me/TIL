@@ -9,10 +9,10 @@ public class EchoClient {
         int portNumber = 2000;
 
         try (Socket echoSocket = new Socket(hostName, portNumber);
-             // 클라이언트에서 서버로 데이터를 쓰기 위해 OutputStream을 가져온 뒤 PrintWriter 객체를 생성한다.
-             PrintWriter out = new PrintWriter(echoSocket.getOutputStream(), true);
-             BufferedReader in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
-             BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in))) {
+            // 클라이언트에서 서버로 데이터를 쓰기 위해 OutputStream을 가져온 뒤 PrintWriter 객체를 생성한다.
+            PrintWriter out = new PrintWriter(echoSocket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
+            BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in))) {
             String userInput;
             while ((userInput = stdIn.readLine()) != null) {
                 if (userInput.length() == 0)
