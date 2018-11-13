@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "329912783251",
+    "firebase_url": "https://my-project-1505784381984.firebaseio.com",
+    "project_id": "my-project-1505784381984",
+    "storage_bucket": "my-project-1505784381984.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:329912783251:android:a5f1b0d58022778a",
+        "android_client_info": {
+          "package_name": "com.example.soyoung.shopping"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "329912783251-krjbm6h01bdj9dac49nm2668gpber809.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZnuRdRpSLWuwBIenp0kK1_pZ7JWH-Lwg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

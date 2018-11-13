@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">짱구 찾기 게임</string>
+    <string name="title">짱구를 찾아주세요!</string>
+    <string name="desciption">시작 버튼을 누르면 시작됩니다!</string>
+</resources>

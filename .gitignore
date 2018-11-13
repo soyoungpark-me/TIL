@@ -1,4 +1,3 @@
-Android
 va.hsp
 *.sonarj
 *.sw*
@@ -139,3 +138,12 @@ chrome-user-data
 .vscode
 *.swp
 *.swo
+
+*.iml
+.gradle
+local.properties
+.idea
+.DS_Store
+build
+captures
+.externalNativeBuild
