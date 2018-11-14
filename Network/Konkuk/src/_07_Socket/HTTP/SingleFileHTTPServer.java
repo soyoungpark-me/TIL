@@ -83,6 +83,11 @@ public class SingleFileHTTPServer {
                while (true) {
                    int c = in.read();
                    if (c == '\r' || c == '\n' || c == -1) break;
+                   // 이 부분에서 break가 걸리면 첫 번째 줄만 읽히게 된다.
+                   // 이 서버는 클라이언트가 보낸 request를 먼저 읽어들이는데,
+                   // request의 헤더 부분의 첫 번째 줄에는 HTTP 버전과 경로, 메소드 (GET, POST..)가 붙는다.
+                   // 파일 하나만 보낼 것이기 때문에 다른 헤더들에 대한 정보는 필요하지 않음!
+
                    request.append((char) c);
                }
 
