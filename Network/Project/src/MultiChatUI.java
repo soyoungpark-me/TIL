@@ -111,31 +111,6 @@ public class MultiChatUI extends JFrame {
 
         cardLayout.show(tab, "login");        // loginPanel 을 우선 보이도록 함.
 
-        /* TODO 추후 컨트롤러가 붙으면 삭제해야 함! */
-        exitButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
-            }
-        });
-
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                id = idInput.getText();
-                outLabel.setText(" 대화명 : " + id);
-                cardLayout.show(tab, "logout");
-            }
-        });
-
-        logoutButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                msgOut.setText("");
-                cardLayout.show(tab, "login");
-            }
-        });
-        /* TODO 추후 컨트롤러가 붙으면 삭제해야 함! */
-
         frame.setSize(600, 400);    // 프레임 크기 자동으로 설정
         frame.setResizable(false);              // 프레임 크기 조정 불가 설정
         frame.setVisible(true);                 // 프레임이 보여지도록 함
@@ -148,22 +123,11 @@ public class MultiChatUI extends JFrame {
      * @param listener
      */
     public void addButtonActionListener(ActionListener listener) {
-        // 이벤트 리스너 등록
+        exitButton.addActionListener(listener);
+        loginButton.addActionListener(listener);
+        logoutButton.addActionListener(listener);
+        msgInput.addActionListener(listener);
     }
-
-    /* TODO 추후 컨트롤러가 붙으면 삭제해야 함! */
-    public static void main(String[] args) {
-        MultiChatUI v = new MultiChatUI();
-    	
-    	v.addButtonActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // 여기 있던 부분이 먹통이어서, 일단 위에 버튼마다 리스너를 추가해뒀습니다!
-                // 나중에 컨트롤러가 붙으면 해당 내용도 같이 지우겠습니다.
-            }
-        });
-    }
-    /* TODO 추후 컨트롤러가 붙으면 삭제해야 함! */
 
     private void setUIFont(javax.swing.plaf.FontUIResource f) {
         java.util.Enumeration keys = UIManager.getDefaults().keys();
