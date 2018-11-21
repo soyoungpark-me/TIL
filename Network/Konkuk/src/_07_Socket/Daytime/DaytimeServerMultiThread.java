@@ -1,4 +1,4 @@
-package _07_Socket;
+package _07_Socket.Daytime;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;

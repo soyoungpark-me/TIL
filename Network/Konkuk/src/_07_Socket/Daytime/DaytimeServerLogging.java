@@ -1,4 +1,4 @@
-package _07_Socket;
+package _07_Socket.Daytime;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -37,7 +37,7 @@ public class DaytimeServerLogging {
             errorLogger.log(Level.SEVERE, "Couldn't start server", e);
         } catch (RuntimeException e) {
             errorLogger.log(Level.SEVERE, "Couldn't start server : " + e.getMessage(), e);
-            // 11월 12, 2018 11:12:04 오전 _07_Socket.DaytimeServerLogging main
+            // 11월 12, 2018 11:12:04 오전 _07_Socket.Daytime.DaytimeServerLogging main
             // 심각: Couldn't start server
             // java.net.BindException: 주소가 이미 사용 중입니다 (Bind failed)
         }
@@ -56,7 +56,7 @@ public class DaytimeServerLogging {
             try {
                 Date now = new Date();
                 auditLogger.info(now + " " + connection.getRemoteSocketAddress());
-                // 11월 12, 2018 11:09:02 오전 _07_Socket.DaytimeServerLogging$DaytimeTask call
+                // 11월 12, 2018 11:09:02 오전 _07_Socket.Daytime.DaytimeServerLogging$DaytimeTask call
                 // 정보: Mon Nov 12 11:09:02 KST 2018 /127.0.0.1:55864
                 //      info 레벨으로 logging 했기 떄문에 앞에 [정보]가 붙는다.
                 //      getRemoteSocketAddress()를 호출했기 떄문에 클라이언트 호스트와 포트도 같이 출력된다.
