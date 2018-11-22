@@ -1,6 +1,7 @@
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.*;
 import com.google.gson.*;
 import static java.util.logging.Level.*;
@@ -107,8 +108,20 @@ public class MultiChatController implements Runnable {
             logger.info("[MultiChatUI] connect to Server successfully");
 
             // 입출력(inMsg, outMsg) 스트림 생성
+            /**
+             * 인코딩과 관련해 주의할 점들 (http://aploit.egloos.com/5020211)
+             *
+             * - 자바 소스 파일의 인코딩 확인
+             * - 자바를 실행하는 환경 (OS)에서의 기본 인코딩 확인
+             * - 읽어오려는 데이터의 인코딩 확인
+             *
+             * java에서는 글자들에 대한 값들을 unicode로 가진다. (컴파일된 클래스에는 unicode로 포함된다)
+             * java 외부의 시스템은 unicode를 처리할 수 없을 수 있으므로, 안팎으로 오갈 때 인코딩해줘야 한다.
+             * > java 어플리케이션에서 쓰는 charset과 상대편의 charset을 동일하게 처리해주자!
+             * */
             inMsg = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
-            outMsg = new PrintWriter(socket.getOutputStream(), true);
+            outMsg = new PrintWriter(new OutputStreamWriter(
+                    socket.getOutputStream(), StandardCharsets.UTF_8), true);
 
             // 서버에 로그인 메시지 전달
             outMsg.println(gson.toJson(new Message(v.id, "", "", "login")));
