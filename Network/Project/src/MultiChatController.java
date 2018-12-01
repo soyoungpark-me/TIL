@@ -13,7 +13,8 @@ public class MultiChatController implements Runnable {
     private final MultiChatUI v;                  // 뷰 클래스 참조 객체
     private final MultiChatData chatData;         // 데이터 클래스 참조 객체
 
-    private final String ip = "203.252.148.148";  // 소켓 연결을 위한 변수 선언
+//    private final String ip = "203.252.148.148";  // 소켓 연결을 위한 변수 선언
+    private final String ip = "localhost";
     private final Integer port = 8888;            // TODO ip 및 포트 번호 변경!!!!!
     private Socket socket;
     private BufferedReader inMsg = null;
@@ -60,7 +61,7 @@ public class MultiChatController implements Runnable {
                     v.cardLayout.show(v.tab, "logout");
 
                     connectServer();
-                } else if (obj == v.logoutButton) {
+                } else if (obj == v.logoutButton || obj == v.exitButton) {
                     if (status && outMsg != null) {
                         // 로그아웃 메시지 전송
                         outMsg.println(gson.toJson(new Message(v.id, "", "", "logout")));
