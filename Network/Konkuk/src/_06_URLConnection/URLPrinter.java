@@ -33,7 +33,7 @@ public class URLPrinter {
             System.out.println("Connect timeout : " + uc.getConnectTimeout());
             System.out.println("Read timeout :" + uc.getReadTimeout());
 
-            // usrIntteraction의 디폴트 값이 false이면 true로 바꿔준다.
+            // userInteraction의 디폴트 값이 false이면 true로 바꿔준다.
             if (!URLConnection.getDefaultAllowUserInteraction()) {
                 URLConnection.setDefaultAllowUserInteraction(true);
             }

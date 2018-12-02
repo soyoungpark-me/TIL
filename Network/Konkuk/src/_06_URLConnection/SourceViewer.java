@@ -5,6 +5,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+/**
+ * URL 클래스와 URLConnection 클래스의 차이점
+ * - URLConnection 클래스는 HTTP 헤더에 접근할 수 있다.
+ * - URLConnection 클래스는 서버로 보내는 요청 매개변수를 설정할 수 있다.
+ * - URLConnection 클래스는 서버로부터 데이터를 읽는 것 뿐만 아니라 쓸 수도 있다.
+ */
 public class SourceViewer {
     public static void main(String[] args) {
         try {

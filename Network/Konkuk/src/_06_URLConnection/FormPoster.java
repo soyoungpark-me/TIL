@@ -6,6 +6,9 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 
+/**
+ * QueryString 클래스를 이용해 데이터를 전송한다.
+ */
 public class FormPoster {
     private URL url;
     private QueryString query = new QueryString();
@@ -28,14 +31,17 @@ public class FormPoster {
     }
 
     public InputStream post() throws IOException {
-        URLConnection uc = url.openConnection();
+        URLConnection uc = url.openConnection();    // 연결을 연다!
 
         uc.setDoOutput(true); // 먼저 doOutput을 true로 설정해줘야 한다.
         try (OutputStreamWriter out = new OutputStreamWriter(uc.getOutputStream(), "UTF-8")) {
+            /**
+             * POST라인, Content-type 헤더, Content-length 헤더는
+             * URLConnection에 의해 보내지므로 데이터만 전송하면 된다!
+             */
             out.write(query.toString());
             out.write("\r\n"); // 끝을 나타냄 (carry return, line feed)
             out.flush(); // 꼭 flush 해준다! close는 try-catch 문에서 자동으로 해준다.
-            System.err.println(query);
         }
 
         return uc.getInputStream();

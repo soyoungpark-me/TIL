@@ -18,7 +18,6 @@ public class Last24 {
             // 건국대 url로 연결할 경우에는 response의 body가 출력되지 않는다. 어제 이후로 수정되지 않았기 떄문!
 
             URL u = new URL("https://www.oreilly.com");
-
             URLConnection uc = u.openConnection();
 
             // IfModifiedSince 값을 읽어와서 Date 형식으로 변환한다.

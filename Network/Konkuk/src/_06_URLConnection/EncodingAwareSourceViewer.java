@@ -5,6 +5,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+/**
+ * SourceViewer 개선!
+ * - 인코딩 정보가 명시되어 있는 경우 해당 인코딩으로 문서 디코딩
+ * - 그렇지 않은 경우 HTTP 기본 문자 집합인 ISO-8859-1으로 문서 디코딩
+ */
 public class EncodingAwareSourceViewer {
     public static void main(String[] args) {
         try {
@@ -21,6 +26,7 @@ public class EncodingAwareSourceViewer {
             System.out.println("contentType : " + contentType);
             System.out.println("encoding : " + encoding);
 
+            // InputStream을 BufferedInputStream으로 싸준다.
             InputStream in = new BufferedInputStream(uc.getInputStream());
             Reader r = new InputStreamReader(in, encoding);
 

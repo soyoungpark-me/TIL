@@ -6,6 +6,12 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Date;
 
+/**
+ * URLConnection에서 헤더를 읽는 6가지 메소드를 사용해
+ * 콘텐츠 타입 / 콘텐츠 길이 / 콘텐츠 인코딩 / 마지막 변경일 / 만료일 / 현재 시간을 출력한다!
+ *
+ * + 각 타입이 설정되지 않았을 경우 어떤 타입을 반환하는지 주의하자
+ */
 public class HeaderViewer {
     public static void main(String[] args) {
         try {
