@@ -8,7 +8,12 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-// 실제로 클라이언트가 보낸 요청을 처리하고, 응답을 보내주는 일을 담당한다!
+/**
+ * 실제로 클라이언트가 보낸 요청을 처리하고, 응답을 보내주는 일을 담당한다!
+ * 기존 SingleFileHTTPServer와 다르게...
+ * - 요청이 도착한 메인 스레드에서 직접 각 요청을 처리하지 않고, 들어온 연결을 풀에 저장한다.
+ * - 분리된 RequestProcessor 클래스의 인스턴스가 풀로부터 연결을 제거하고 해당 연결을 처리한다!
+ */
 
 public class RequestProcessor implements Runnable {
     private final static Logger logger = Logger.getLogger(RequestProcessor.class.getCanonicalName());
