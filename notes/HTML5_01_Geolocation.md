@@ -12,13 +12,13 @@
 
 ### 위치 정보 수집 함수
 
-1. **```getCurrentPosition```**: 위치 정보를 수집하는 API
+1. **getCurrentPosition**: 위치 정보를 수집하는 API
 
    ```javascript
    void getCurrentPosition(PositionCallback successCallback, optional PositionErrorCallback errorCallback, optional PositionOptions options);
    ```
 
-   - **``` PositionCallback ``` **:  요청이 성공했을 경우의 콜백 함수
+   - ```PositionCallback```:  요청이 성공했을 경우의 콜백 함수
 
      - 성공시 ```Position``` 값을 리턴한다.
 
@@ -32,7 +32,7 @@
        DOMTimeStamp timestamp : 수집 시간 정보
        ```
 
-   - **```PositionErrorCallback```** : 요청이 실패했을 때의 콜백 함수
+   - ```PositionErrorCallback``` : 요청이 실패했을 때의 콜백 함수
 
      - 실패시 ```PositionError``` 값을 리턴한다.
 
@@ -44,7 +44,7 @@
         	unsigned short TIMEOUT = 3: 위치 정보를 수집하기 전에 먼저 
         								옵션의 timeout 값 시간이 소모
 
-   - **```PositionOptions```** : 실제로 요청할 때 쓰는 인자들
+   - ```PositionOptions``` : 실제로 요청할 때 쓰는 인자들
 
      - ```boolean enableHighAccuracy``` : (기본 falue) 앱의 위치 정보를 최대한 정확하게 할건지.
 
