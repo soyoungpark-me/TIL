@@ -8,9 +8,9 @@ ___
 
 ### HTTPS와 HTTP
 
-- **```HTTP```** : ```HyperText Transfer Protocol```의 약자로, **```HTML```**을 전송하기 위한 통식 규약이다.
+- **HTTP** : ```HyperText Transfer Protocol```의 약자로, **HTML**을 전송하기 위한 통식 규약이다.
 
-- **```HTTPS```** : S는 ```Over Secure Sockt Layer```의 약자로, HTTPS는 **보안이 강화된 HTTP**라는 것을 의미한다.
+- **HTTPS** : S는 ```Over Secure Sockt Layer```의 약자로, HTTPS는 **보안이 강화된 HTTP**라는 것을 의미한다.
 
   - HTTP는 암호화되지 않은 상태로 클라이언트와 서버 간 데이터를 주고 받는다.
 
@@ -28,7 +28,7 @@ ___
 
 ### SSL 인증서가 필요한 이유
 
-- **```SSL``` 인증서** : 클라이언트와 서버간의 통신을 제 3자가 보증해주는 전자화된 문서
+- **SSL 인증서** : 클라이언트와 서버간의 통신을 제 3자가 보증해주는 전자화된 문서
 
   - 보통 유료로 구매해야 한다. (비쌈 ㅠㅠ)
 
