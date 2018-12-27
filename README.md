@@ -10,7 +10,7 @@ ___
 
 #### 1. Android :point_right: [**Link**](https://github.com/3457soso/TIL/tree/master/Android)
 
-	> 안드로이드 프로그래밍 학부 수업 시간에 정리한 내용을 모아두었습니다.
+  > 안드로이드 프로그래밍 학부 수업 시간에 정리한 내용을 모아두었습니다.
 
 
 
@@ -19,7 +19,7 @@ ___
 - 출처 : [**Do it! Node.js 프로그래밍**](https://book.naver.com/bookdb/book_detail.nhn?bid=11738465)
 
   > Node.js에 대해서 학습합니다. 위 서적을 참고해 공부했습니다.
-  >
+  
 
   
 
@@ -55,9 +55,7 @@ ___
 
 
 
-#### +) Notes
-
-- 👉 [**Link**](https://github.com/3457soso/study-spring-framework/tree/master/4_intelliJ-intro)
+#### +) Notes 👉 [**Link**](https://github.com/3457soso/study-spring-framework/tree/master/4_intelliJ-intro)
 
   > 각종 CS 및 개발 상식들에 대해 정리하고 있습니다.
 
