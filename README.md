@@ -8,13 +8,13 @@
 
 ___
 
-#### 1. Android :point_right: [**Link**](https://github.com/3457soso/TIL/tree/master/Android)
+### 1. Android :point_right: [**Link**](https://github.com/3457soso/TIL/tree/master/Android)
 
   > 안드로이드 프로그래밍 학부 수업 시간에 정리한 내용을 모아두었습니다.
 
 
 
-#### 2. Node.js 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/Node.js)
+### 2. Node.js 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/Node.js)
 
 - 출처 : [**Do it! Node.js 프로그래밍**](https://book.naver.com/bookdb/book_detail.nhn?bid=11738465)
 
@@ -23,7 +23,7 @@ ___
 
   
 
-#### 3. React.js 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/React.js)
+### 3. React.js 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/React.js)
 
 - 출처 : [**모던 리액트와 리덕스**](https://www.udemy.com/react-redux-korean/)
 
@@ -31,7 +31,7 @@ ___
 
   
 
-#### 4. RabbitMQ 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/RabbitMQ)
+### 4. RabbitMQ 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/RabbitMQ)
 
 - 출처 : [**RabbitMQ 공식 홈페이지의 튜토리얼**](https://www.rabbitmq.com/getstarted.html)
 
@@ -39,7 +39,7 @@ ___
 
 
 
-#### 5. GraphQL 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/GraphQL)
+### 5. GraphQL 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/GraphQL)
 
 - 출처 : [**GraphQL로 영화 API 만들기**](https://academy.nomadcoders.co/p/make-a-movie-api-with-graphql-and-nodejs-super-begginner)
 
@@ -47,7 +47,7 @@ ___
 
 
 
-#### 6. Kafka 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/Kafka)
+### 6. Kafka 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/Kafka)
 
 - 출처 : [**카프카 핵심 가이드**](https://book.naver.com/bookdb/book_detail.nhn?bid=14093855)
 
@@ -55,7 +55,7 @@ ___
 
 
 
-#### +) Notes 👉 [**Link**](https://github.com/3457soso/study-spring-framework/tree/master/4_intelliJ-intro)
+### +) Notes 👉 [**Link**](https://github.com/3457soso/study-spring-framework/tree/master/4_intelliJ-intro)
 
   > 각종 CS 및 개발 상식들에 대해 정리하고 있습니다.
 
