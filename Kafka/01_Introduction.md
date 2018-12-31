@@ -1,141 +1,135 @@
-# RabbitMQ 매뉴얼
+# Kafka 기초 다지기
+
+ **출처 : [카프카 핵심 가이드 (O'Reilly)](https://book.naver.com/bookdb/book_detail.nhn?bid=14093855)**
 
 #### 목차
 
-1. **RabbitMQ 소개**
-2. Work Queue 활용
-3. Pub/sub 기능 활용
-4. Routing 활용
-5. Topic 활용
-
-작성일 : ```2018.09.11```
-
-
-
-___
-
-## 1. RabbitMQ 소개
-
-### RabbitMQ의 정의
-
-- **MQ** : ```Message Queue```의 약자로, 메시지 브로커를 의미한다.
-
-  큐에 전달 받은 메시지를 다른 곳으로 전달하는 역할을 한다.
-
-  ```AMQP``` 프로토콜을 기반으로 한다.
-
-- **AMQP** : ```Advanced Message Queuing Protocol```.
-
-  클라이언트 어플리케이션과 미들웨어 브로커가 메시지를 주고 받을 때 쓴다.
-
-- ```RabbitMQ```는 **비동기 처리**를 위한 메시지 큐 브로커로, ```pub/sub```방식을 지원한다.
-
-
+1. **카프카 훑어보기**
+   - [**메시지 발행과 구독하기**](#1-메시지-발행과-구독하기)
+   - [**카프카 살펴보기**](#2-카프카-살펴보기)
+   - [**카프카를 사용하는 이유**](#3-카프카를-사용하는-이유)
+2. 카프카 프로듀서 : 카프카에 메시지 쓰기
+3. 카프카 컨슈머 : 카프카에서 데이터 읽기
+4. 카프카 내부 메커니즘
+5. 신뢰성 있는 데이터 전달
+6. 데이터 파이프라인 구축하기
+7. 크로스 클러스터 데이터 미러링
+8. 카프카 관리하기
+9. 카프카 모니터링
+10. 스트림 프로세싱
 
 ___
 
-### 동작 방법 이해하기
+## 카프카 훑어보기
 
-- **우체부**와 유사하다고 생각하면 된다.
+### 1. 메시지 발행과 구독하기
 
-- 보내고 싶은 메일(```message```)를 우체통(```Queue```)에 넣으면 우체부(```Worker```)들이 전해준다. (처리해준다.)
+#### 1) 메시지 발행/구독 시스템
+
+- 데이터(메시지)를 발행자(전송자)가 직접 구독자(수신자)에게 보내지 않는다.
+
+- 발행자가 어떤 형태로는 메시지를 구분해 전송하면, 구독자가 특정 부류의 메시지를 구독할 수 있게 해준다.
+
+- 발행된 메시지를 저장하고 중계하는 역할은 **브로커**가 한다.
 
   
 
-![공식 이미지](https://blogfiles.pstatic.net/MjAxODA5MTFfMjg5/MDAxNTM2NjUxMzQ2MDYx.CE1jXfC641IEIruqJ247KWpLUnl1k-79Rg_YSGJkKQYg.BZWC7FvSmJMN56K2ADglLXnAx-Z1ym8otrkdngHBHQ0g.JPEG.3457soso/python-one.jpg)
+#### 2) 개별적인 메시지 큐 시스템
 
-- **producing** : send 하는 것과 같다. 메시지를 보내는 일을 하는 프로그램이 ```producer```
-
-- **queue** : ```RabbitMQ``` 내에 있는 우체통이다. 메시지는 ```RabbitMQ```와 프로그램 사이를 오가지만, **큐에만 저장된다**
-
-  호스트 컴퓨터의 메모리나 디스크에 존재한다.
-
-- **consuming** : receiving과 비슷하다.메시지를 받는 걸 기다리는 프로그램이 ```consumer```
-
-  > Javascript에서는 ```amqp.node API```를 사용한다.
+- 정보의 발행자와 구독자를 분리하자!
+- 일반화된 유형의 메시지 데이터를 발행/구독하는 **하나의 집중 처리 시스템**으로 만든다.
+  - 유연성과 확장성이 좋아진다.
 
 
 
 ___
 
-### Sending
+### 2. 카프카 살펴보기
 
-![sending](https://blogfiles.pstatic.net/MjAxODA5MTFfNjAg/MDAxNTM2NjUxMzQ3ODc2.HO_uLjxgtaLrm3iSjwbi9-fqLRLB7xsoaOCsgTjUt8Ag.zJt6P4WR7zqVxqGsxwtSYI2VbjwoT7dRG4hz2h8Hrq0g.JPEG.3457soso/sending.jpg)
+#### 1) 메시지와 배치
 
-1. 해당 라이브러리를 import하고,
-2. ```RabbitMQ``` 서버에 연결한 뒤에,
-3. 대부분의 API가 존재하는 채널을 생성한다 (?)
-4. 해당 채널 내에 큐를 정의한다. 이 큐 내에 메시지를 ```publish``` 할 수 있다.
-   - 큐는 이미 존재하지 않을 때에만 생성된다.
-   - 메시지 내용은 ```bite array```이므로 아무거나 인코딩해서 집어넣을 수 있다.
-5. 작업이 끝나면 커넥션을 끊고 나간다.
+- **메시지** : 데이터의 기본 단위 (= 데이터베이스의 row)
 
-```javascript
-#!/usr/bin/env node
+  - 카프카는 메시지를 **바이트 배열**의 데이터로 간주해 특정 형식이나 의미를 갖지 않는다!
 
-var amqp = require('amqplib/callback_api');
+  - 효율성을 위해 여러 개의 메시지를 모아 **배치** 형태로 **파티션**에 수록한다.
 
-// 1. RabbitMQ 서버에 연결한다.
-amqp.connect('amqp://localhost', function(err, conn) {
-  // 2. 채널을 생성한다.
-  conn.createChannel(function(err, ch) {
+    \> 네트워크로부터 매번 메시지를 받아 처리하는 것보다 부담이 적다.
 
-    // 3. 큐를 생성한다.
-    var q = 'hello';
-
-    // 보낼 메시지의 내용
-    var msg = 'Hello World!';
-
-    ch.assertQueue(q, {durable: false});
-
-    // 4. 큐에 해당 메시지를 넣는다.
-    ch.sendToQueue(q, Buffer.from(msg));
-    console.log(" [x] Sent %s", msg);
-  });
-  setTimeout(function() { conn.close(); process.exit(0) }, 500);
-});
-```
+- **스키마** : 내용을 이해하기 쉽도록 메시지의 구조를 나타내준다.
 
 
 
-### Receiving
+#### 2) 토픽과 파티션
 
-![receiving](https://blogfiles.pstatic.net/MjAxODA5MTFfMjMg/MDAxNTM2NjUxMzQ3MzIy.KxEWYG2qlqz62P0XSf64LeiyWy8voahf7VMJjJjWsOAg.GZV_LdAGC1aTN23orbRoy29aOGW-RBoDhPCp0SLIJwMg.JPEG.3457soso/receiving.jpg)
+- **토픽** : 카프카의 메시지를 분류한다. (= 데이터 베이스의 table)
+- **파티션** : 하나의 토픽은 여러 파티션으로 구성된다.
+  - 메시지는 파티션에 추가되는 형태로 수록되고, 맨 앞에서 제일 끝까지의 순서로 읽힌다.
+  - **[주의]** 하나의 토픽은 여러 개의 파티션을 갖지만, 메시지 처리 순서는 **파티션별로** 유지 관리된다.
+- **스트림** : 파티션의 개수와 상관없는 하나의 토픽 데이터. 
+  - 데이터를 쓰는 프로듀서로부터 데이터를 읽는 컨슈머로 **이동되는 연속적인 데이터**
+  - **실시간**으로 메시지를 처리할 때 주로 사용한다.
 
-1. ```sending```과는 다르게, 메시지가 생성되는 것을 기다리며 **listen** 상태로 있어야 한다.
-2. ```sending``` 과정과 비슷하지만, 큐에서 메시지를 꺼내기 전에 큐가 존재하는 걸 꼭 확인해야 한다.
-3. 해당 채널과 큐를 할당해서, ```consume()``` 함수로 받은 메시지를 처리할 수 있도록 한다.
-   - 비동기식으로 메시지를 전달하므로, ```RabbitMQ```가 ```consumer```에게 메시지를 전달할 때 실행할 콜백 함수가 필요하다.
 
-```javascript
-#!/usr/bin/env node
 
-var amqp = require('amqplib/callback_api');
+#### 3) 프로듀서와 컨슈머
 
-// 1. RabbitMQ 서버에 연결한다.
-amqp.connect('amqp://localhost', function(err, conn) {
-  // 2. 채널을 생성한다.
-  conn.createChannel(function(err, ch) {
-    // 3. 큐를 생성하고 채널에 등록한다.
-    var q = 'hello';
+- **프로듀서** : 새로운 메시지를 생성한다. (= 발행자, 작성자)
+  - 기본적으로는 메시지가 어떤 파티션에 수록되는지 관여하지 않는다.
+  - 특정 파티션에 메시지를 직접 쓸 수도 있다.
+- **컨슈머** : 생성된 메시지를 읽는다. (= 구독자, 독자)
+  - 하나 이상의 토픽을 **구독**해 메시지가 **생성된 순서**로 읽는다.
+  - 메시지의 **오프셋**을 유지해 읽는 메시지의 위치를 알 수 있다.
 
-    ch.assertQueue(q, {durable: false});
-    console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", q);
 
-    // 4. 큐에 메시지가 들어오는 것을 기다린다.
-    ch.consume(q, function(msg) {
-      console.log(" [x] Received %s", msg.content.toString());
-    }, {noAck: true});
-  });
-});
-```
+
+#### 4) 브로커와 클러스터
+
+- **브로커** : 하나의 카프카 서버.
+  - 프로듀서로부터 메시지를 수신하고, 오프셋을 지정한 후, 해당 메시지를 디스크에 저장한다.
+  - 컨슈머의 파티션 읽기 요청에 응답하고, 수록된 메시지를 전송한다.
+- **클러스터** : 카프카의 브로커는 클러스터의 일부로 동작한다.
+  - 여러 개의 브로커가 **하나의 클러스터에 포함**될 수 있다.
+  - 그 중 하나는 자동으로 선정되는 클러스터의 **컨트롤러**가 된다.
+  - **다중 클러스터** : 카프카가 많이 설치되어 사용될 때 고려한다.
 
 
 
 ___
 
-### 참고 문헌
+### 3. 카프카를 사용하는 이유
 
-RabbitMQ 공식 홈페이지의 튜토리얼을 번역하며 공부한 내용입니다.
+#### 1) 카프카의 장점
 
-- [RabbitMQ tutorial : "Hello World!"](https://www.rabbitmq.com/tutorials/tutorial-one-javascript.html)
+- **다중 프로듀서**
+
+  여러 클라이언트가 많은 토픽을 사용하거나, 같은 토픽을 같이 사용해도 
+
+  카프카는 무리 없이 많은 프로듀서의 메시지를 처리할 수 있다.
+
+- **다중 컨슈머**
+
+  많은 컨슈머가 **상호 간섭 없이** 어떤 메시지 스트림도 읽을 수 있다.
+
+- **디스크 기반의 보존**
+
+  **지속해서** 메시지를 보존할 수 있고, 데이터가 유실될 위험이 없다.
+
+  컨슈머가 항상 실시간으로 실행되지 않아도 된다.
+
+- **확장성**
+
+  확장성이 좋아 **어떤 크기의 데이터도 쉽게 처리**할 수 있다.
+
+- **고성능**
+
+  지금까지의 모든 기능들이 합쳐져 아파치 카프카를 고성능의 메시지 발행/구독 시스템으로 만들어준다.
+
+  
+
+#### 2) 데이터 생태계
+
+1. 데이터를 생성하는 애플리케이션에 맞춰 **입력 형식이 정의**된다.
+2. **시스템의 데이터를 읽어들인다**
+3. 다른 소스에서 받은 데이터를 사용해 **변환**시킨다.
+4. 어디서든 사용될 수 있도록 최종 데이터를 **데이터 기반 구조에 전달**한다.
