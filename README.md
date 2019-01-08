@@ -41,7 +41,7 @@ ___
 
 ### 5. GraphQL 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/GraphQL)
 
-출처 : [**GraphQL로 영화 API 만들기**](https://academy.nomadcoders.co/p/make-a-movie-api-with-graphql-and-nodejs-super-begginner)
+출처 : [**GraphQL로 영화 API 만들기**](https://academy.nomadcoders.co/p/make-a-movie-api-with-graphql-and-nodejs-super-begginner), [**GraphQL 공식 가이드**](https://graphql.org/learn/)
 
   > 노마드코더의 GraphQL 기초 강의를 듣고 있습니다.
 
