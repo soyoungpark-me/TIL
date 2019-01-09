@@ -7,9 +7,10 @@
 1. GraphQL 소개
 2. 쿼리와 뮤테이션
 3. **스키마와 타입**
-   - GraphQL의 타입 시스템
-   - 다양한 타입들
-   - 인터페이스와 유니온 타입
+   - [**GraphQL의 타입 시스템**](#1-GraphQL의-타입-시스템 )
+   - [**쿼리 타입과 뮤테이션 타입**](#2-쿼리-타입과-뮤테이션-타입)
+   - [**다양한 타입들**](#3-다양한-타입들)
+   - [**인터페이스와 유니온 타입**](#4-인터페이스와-유니온-타입)
 
 ___
 
@@ -386,4 +387,37 @@ ___
 
 #### 3) 입력 타입
 
-- 스칼라 타입 외에도, **복잡
+- 스칼라 타입 외에도, **복잡한 객체도 인자로 쉽게 전달**할 수 있다
+
+- 이는 뮤테이션에서 특히 유용함! (생성될 전체 객체를 전달할 수 있다)
+
+- GraphQL 스키마 언어에서 입력 타입은 일반 객체 타입과 같지만, **type 대신 input을 사용한다**
+
+  ```json
+  input ReviewInput {
+    stars: Int!
+    commentary: String
+  }
+  ```
+
+  뮤테이션에서 입력 객체를 쓰고 싶다면
+
+  ```json
+  mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
+    createReview(episode: $ep, review: $review) {
+      stars
+      commentary
+    }
+  }
+  {
+    "ep": "JEDI",
+    "review": {
+      "stars": 5,
+      "commentary": "This is a great movie!"
+    }
+  }
+  ```
+
+- 입력 객체 타입의 입력란은 입력 객체 타입을 참조할 수 있지만,
+
+- **입력 및 출력 타입을 스키마에 혼합할 수는 없고, 필드에 인자를 가질 수도 없다**
