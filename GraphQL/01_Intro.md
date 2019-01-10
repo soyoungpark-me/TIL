@@ -4,8 +4,10 @@
 
 #### 목차
 
-1. GraphQL 소개
-2. Query와 Mutation02_Query_Mutation
+1. **GraphQL 소개**
+   - [**GraphQL 이란?**](#1-GraphQL-이란?)
+2. 쿼리와 뮤테이션
+3. 스키마와 타입
 
 ___
 
