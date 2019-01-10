@@ -1,42 +1,40 @@
-# Kafka 기초 다지기
+# GraphQL 기초 다지기
 
-#### 참고 서적 : 카프카 핵심 가이드 [(책 정보 보기)](https://book.naver.com/bookdb/book_detail.nhn?bid=14093855)
+![image](https://blogfiles.pstatic.net/MjAxOTAxMTNfMjY5/MDAxNTQ3MzU1MTEyMjk5.7FuEv3vSYxkfi82wIIodxKHhemlIXmLUNbFfJBScFvEg.kfrZrASJydvEyBe9oa72BYdGeaT5Wop5ZoEDPwwQxQUg.PNG.3457soso/1176121-20180118100956709-201418282.png)
 
-![책소개 이미지](https://blogfiles.pstatic.net/MjAxODEyMjhfMTQg/MDAxNTQ1OTM5NTc0MjM1.lyhES1P4ku6xkSfqADeJmIKvGGvFB02tpSFJDIl8Xcog.rhAmyr6QAtQywjrRddknRdjmGl_eml4EI5_zQa7fLrEg.JPEG.3457soso/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7_2018-12-28_04-37-10.png)
+- GraphQL은 Facebook에서 개발된 API를 위한 쿼리 랭귀지입니다.
+- 쿼리를 실행하기 위해 서버 사이드에서 돌며, 미리 지정된 타입 시스템이 쓰입니다.
 
-- 아파치 카프카는 LinkedIn에서 개발된 분산 메시징 시스템입니다.
-- 분산 환경과, 대용량의 실시간 데이터 처리에 특화되어 있습니다.
 
-  
 
 ***
 
 ### 목차
 
-1. [**카프카 훑어보기**](https://github.com/3457soso/TIL/blob/master/Kafka/01_Introduction.md)
+1. [**GraphQL 소개**](https://github.com/3457soso/TIL/blob/master/GraphQL/01_Intro.md)
 
-   - 메시지 발행과 구독하기
-   - 카프카 살펴보기
-   - 카프카를 사용하는 이유
+   - GraphQL 이란?
 
    
 
-2. 카프카 프로듀서 : 카프카에 메시지 쓰기
+2. [**쿼리와 뮤테이션**](https://github.com/3457soso/TIL/blob/master/GraphQL/02_Query_Mutation.md)
 
-3. 카프카 컨슈머 : 카프카에서 데이터 읽기
+   - 필드와 인자
+   - 별칭과 프래그먼트
+   - 작업 이름과 변수
+   - 지시어
+   - 뮤테이션
+   - 인라인 프래그먼트
 
-4. 카프카 내부 메커니즘
+   
 
-5. 신뢰성 있는 데이터 전달
+3. [**스키마와 타입**](https://github.com/3457soso/TIL/blob/master/GraphQL/03_Schema_Type.md)
 
-6. 데이터 파이프라인 구축하기
+   - GraphQL의 타입 시스템
+   - 쿼리 타입과 뮤테이션 타입
+   - 다양한 타입들
+   - 인터페이스와 유니온 타입
 
-7. 크로스 클러스터 데이터 미러링
-
-8. 카프카 관리하기
-
-9. 카프카 모니터링
-
-10. 스트림 프로세싱
+   
 
 ### :house: [**돌아가기**](https://github.com/3457soso/TIL)
