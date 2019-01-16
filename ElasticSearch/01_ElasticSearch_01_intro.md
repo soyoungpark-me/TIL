@@ -6,7 +6,12 @@
 
 #### 목차
 
-1. 엘라스틱서치 Intro
+1. **엘라스틱서치 Intro**
+   - [**엘라스틱서치 소개**](#-1-엘라스틱서치-소개)
+   - [**Solr와 ElasticSearch**](#2-Solr와-ElasticSearch)
+2. 엘라스틱서치의 구성 요소
+   - 논리적 배치
+   - 물리적 배치
 
 ------
 
@@ -45,7 +50,7 @@
 
 ___
 
-### 2. Solr vs ElasticSearch
+### 2. Solr와 ElasticSearch
 
 - 일단 색인 및 검색에는 둘 다 **Lucene**을 사용한다고 함!
 
