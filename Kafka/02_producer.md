@@ -2,7 +2,7 @@
 
  **출처 : [카프카 핵심 가이드 (O'Reilly)](https://book.naver.com/bookdb/book_detail.nhn?bid=14093855)**
 
-#### 목차-
+#### 목차
 
 1. 카프카 훑어보기
 2. **카프카 프로듀서 : 카프카에 메시지 쓰기**
