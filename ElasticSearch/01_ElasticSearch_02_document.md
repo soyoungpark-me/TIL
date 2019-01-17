@@ -2,7 +2,7 @@
 
 # ELK Stack 기초 다지기
 
- **출처 : **[**ElasticSearch 공식 홈페이지**](https://www.elastic.co/guide/index.html)
+ **출처 :** [**ElasticSearch 공식 홈페이지**](https://www.elastic.co/guide/index.html)
 
 #### 목차
 
