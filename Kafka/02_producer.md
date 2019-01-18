@@ -10,10 +10,11 @@
    - [**카프카에 메시지 전송하기**](#2-카프카에-메시지-전송하기)
    - [**직렬처리기**](#3-직렬처리기)
    - [**파티션**](#4-파티션)
-3. 카프카 컨슈머 : 카프카에서 데이터 읽기
-4. 스키마 레지스트리
-5. 카프카 내부 메커니즘
-6. 데이터 파이프라인 구축하기
+3. [카프카 프로듀서 : 중요 개념](https://github.com/3457soso/TIL/blob/master/Kafka/03_consumer_core.md)
+4. [카프카 컨슈머 : 카프카에서 데이터 읽기](https://github.com/3457soso/TIL/blob/master/Kafka/04_consumer_use.md)
+5. 스키마 레지스트리
+6. 카프카 내부 메커니즘
+7. 데이터 파이프라인 구축하기
 
 - confluent 예제
 - schema registry 예제
