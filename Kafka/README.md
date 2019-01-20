@@ -19,24 +19,28 @@
    - 카프카 살펴보기
    - 카프카를 사용하는 이유
 
+2. [**범용 메시지 큐와 비교하기**](https://github.com/3457soso/TIL/blob/master/Kafka/02_compare.md)
+
    
 
-2. [**카프카 프로듀서 : 카프카에 메시지 쓰기**](https://github.com/3457soso/TIL/blob/master/Kafka/02_producer.md) 
+3. [**카프카 프로듀서 : 카프카에 메시지 쓰기**](https://github.com/3457soso/TIL/blob/master/Kafka/03_producer.md) 
 
    - 프로듀서 개요
    - 카프카에 메시지 전송하기
    - 직렬처리기
    - 파티션
 
-3. 카프카 컨슈머 : 중요 개념
+4. [**카프카 컨슈머 : 중요 개념**](https://github.com/3457soso/TIL/blob/master/Kafka/04_consumer_core.md)
 
-4. 카프카 컨슈머 : 카프카에서 데이터 읽기
+5. [**카프카 컨슈머 : 카프카에서 데이터 읽기**](https://github.com/3457soso/TIL/blob/master/Kafka/05_consumer_use.md)
 
-5. 스키마 레지스트리
+6. [**스키마 레지스트리**](https://github.com/3457soso/TIL/blob/master/Kafka/06_schema_registry.md)
 
-6. 카프카 내부 메커니즘
+7. 신뢰성 있는 데이터 전달
 
-7. 데이터 파이프라인 구축하기
+8. 카프카 내부 메커니즘
+
+9. 데이터 파이프라인 구축하기
 
 - [**confluent 예제**]()
 - [**schema registry 예제**]()
