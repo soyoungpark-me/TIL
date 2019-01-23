@@ -17,8 +17,8 @@
 7. 카프카 내부 메커니즘
 8. 데이터 파이프라인 구축하기
 
-- confluent 예제
-- schema registry 예제
+- [confluent 예제](https://github.com/3457soso/TIL/blob/master/Kafka/99_confluent_example)
+- [schema registry 예제](https://github.com/3457soso/TIL/blob/master/Kafka/99_schema_registry_example)
 
 
 

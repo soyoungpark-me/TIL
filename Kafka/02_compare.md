@@ -15,8 +15,8 @@
 8. 신뢰성 있는 데이터 전달
 9. 데이터 파이프라인 구축하기
 
-- confluent 예제
-- schema registry 예제
+- [confluent 예제](https://github.com/3457soso/TIL/blob/master/Kafka/99_confluent_example)
+- [schema registry 예제](https://github.com/3457soso/TIL/blob/master/Kafka/99_schema_registry_example)
 
 
 
