@@ -21,7 +21,7 @@
 
    
 
-2. 카프카 프로듀서 : 카프카에 메시지 쓰기
+2. [**카프카 프로듀서 : 카프카에 메시지 쓰기**](https://github.com/3457soso/TIL/blob/master/Kafka/02_producer.md)
 
 3. 카프카 컨슈머 : 카프카에서 데이터 읽기
 
