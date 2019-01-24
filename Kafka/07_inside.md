@@ -5,13 +5,12 @@
 #### 목차
 
 1. [카프카 훑어보기](https://github.com/3457soso/TIL/blob/master/Kafka/01_Introduction.md)
-2. **범용 메시지 큐와 비교하기**
-   - 
-3. [카프카 프로듀서 : 카프카에 메시지 쓰기](https://github.com/3457soso/TIL/blob/master/Kafka/02_producer.md) 
-4. [카프카 프로듀서 : 중요 개념](https://github.com/3457soso/TIL/blob/master/Kafka/03_consumer_core.md)
-5. [카프카 컨슈머 : 카프카에서 데이터 읽기](https://github.com/3457soso/TIL/blob/master/Kafka/04_consumer_use.md)
+2. [범용 메시지 큐와 비교하기](https://github.com/3457soso/TIL/blob/master/Kafka/02_compare.md)
+3. [카프카 프로듀서 : 카프카에 메시지 쓰기](https://github.com/3457soso/TIL/blob/master/Kafka/03_producer.md)
+4. [카프카 프로듀서 : 중요 개념](https://github.com/3457soso/TIL/blob/master/Kafka/04_consumer_core.md)
+5. [카프카 컨슈머 : 카프카에서 데이터 읽기](https://github.com/3457soso/TIL/blob/master/Kafka/05_consumer_use.md)
 6. [스키마 레지스트리](https://github.com/3457soso/TIL/blob/master/Kafka/06_schema_registry.md)
-7. [카프카 내부 메커니즘](https://github.com/3457soso/TIL/blob/master/Kafka/07_inside.md)
+7. **카프카 내부 메커니즘**
 8. [신뢰성 있는 데이터 전달](https://github.com/3457soso/TIL/blob/master/Kafka/08_reliability.md)
 9. [데이터 파이프라인 구축하기](https://github.com/3457soso/TIL/blob/master/Kafka/09_data_pipeline.md)
 
@@ -20,8 +19,9 @@
 
 
 
-___
+------
 
-## 범용 메시지 큐와 비교하기
+## 카프카 내부 메커니즘
 
 ### 1. 
+
