@@ -46,14 +46,17 @@ ___
   > 노마드코더의 GraphQL 기초 강의를 듣고 있습니다.
 
 
-
 ### 6. Kafka 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/Kafka)
 
 출처 : [**카프카 핵심 가이드**](https://book.naver.com/bookdb/book_detail.nhn?bid=14093855)
 
   > Kafka에 대해서 학습합니다. 위 서적을 참고로 공부중입니다!
+  
 
+### 7. TypeScript 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/TypeScript)
 
+  > TypeScript의 공식 홈페이지 튜토리얼을 보며 학습하고 있습니다.
+  
 
 ### +) Notes 👉 [**Link**](https://github.com/3457soso/study-spring-framework/tree/master/4_intelliJ-intro)
 
