@@ -7,7 +7,7 @@
 1. [카프카 훑어보기](https://github.com/3457soso/TIL/blob/master/Kafka/01_Introduction.md)
 2. [범용 메시지 큐와 비교하기](https://github.com/3457soso/TIL/blob/master/Kafka/02_compare.md)
 3. [카프카 프로듀서 : 카프카에 메시지 쓰기](https://github.com/3457soso/TIL/blob/master/Kafka/03_producer.md)
-4. [카프카 프로듀서 : 중요 개념](https://github.com/3457soso/TIL/blob/master/Kafka/04_consumer_core.md)
+4. [카프카 컨슈머 : 중요 개념](https://github.com/3457soso/TIL/blob/master/Kafka/04_consumer_core.md)
 5. **카프카 컨슈머 : 카프카에서 데이터 읽기**
    - [**카프카 컨슈머 생성하기**](#1-카프카-컨슈머-생성하기)
    - [**토픽 구독과 폴링 루프**](#2-토픽-구독과-폴링-루프)
