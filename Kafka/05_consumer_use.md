@@ -161,7 +161,7 @@ try {
   - 자바 애플리케이션이 강제로 종료되면서 런타임 JVM이 셧다운 될 때, **우리가 등록한 스레드**를 먼저 실행시킴!
   - 애플리케이션이 종료될 때마다 마무리해줘야 하는 작업이 있다면 여기서 해주면 된다!
 
-```
+```java
 public static void main(String args[]) {
     // ...
     Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -196,8 +196,7 @@ public static void main(String args[]) {
         // 컨슈머 스레드를 닫고 애플리케이션을 종료할 것이므로 이 에러는 무시한다.
     } finally {
         consumer.close(); // 컨슈머 스레드는 종료 전에 반드시 닫아야 한다!
-    }
-    
+    }    
 }
 ```
 
@@ -347,7 +346,7 @@ ___
     - 파티션이 브로커에서 재할당된 후에,
     - 컨슈머가 파티션을 새로 할당받아 메시지 소비를 시작하기 전에 호출
 
-```
+```java
 private Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
 
 private class HandleRebalance implements ConsumerRebalanceListener {
