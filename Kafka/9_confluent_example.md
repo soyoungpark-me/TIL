@@ -1,4 +1,4 @@
-# Kafka 기초 다지기
+#Kafka 기초 다지기
 
 #### Kafka CI Tools 실습해보기
 
