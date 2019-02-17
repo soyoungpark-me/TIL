@@ -3,9 +3,7 @@
 #### 참고 서적 : ElasticSearch In Action [(책 정보 보기)](https://book.naver.com/bookdb/book_detail.nhn?bid=11213891)
 
 
-
 - 엘라스틱서치는 루씬 기반의 실시간 검색을 제공하는 분산 검색엔진입니다.
-
 - 색인 도구 (Logstash, Beats) 및 시각화 (Kibana)에 용이합니다.
 
   
