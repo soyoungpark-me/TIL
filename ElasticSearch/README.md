@@ -12,14 +12,14 @@
 
 ### 목차
 
-1. [**엘라스틱서치 Intro**]()
+1. [**엘라스틱서치 Intro**](https://github.com/3457soso/TIL/blob/master/ElasticSearch/01_ElasticSearch_01_intro.md)
 
    - 엘라스틱서치 소개
    - Solr와 ElasticSearch
 
    
 
-2. [**엘라스틱서치의 구성 요소**]()
+2. [**엘라스틱서치의 구성 요소**](https://github.com/3457soso/TIL/blob/master/ElasticSearch/01_ElasticSearch_02_document.md)
 
    - 논리적 배치
    - 물리적 배치
