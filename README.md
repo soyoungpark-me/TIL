@@ -58,7 +58,7 @@ ___
   > 출처 : [**카프카 핵심 가이드**](https://book.naver.com/bookdb/book_detail.nhn?bid=14093855)
   
     
-### 7. ELK 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/Kafka)
+### 7. ELK 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/ElasticSearch)
 
   > ELK Stack (ElasticSearch, Logstash, Kibana)에 대해 공부중입니다.
   >
