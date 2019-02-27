@@ -13,7 +13,7 @@
 
 ### 목차
 
-1. [**카프카 훑어보기**](https://github.com/3457soso/TIL/blob/master/Kafka/01_Introduction.md)
+1. [**카프카 훑어보기**](https://github.com/3457soso/TIL/blob/master/Kafka/01_Intro.md)
 
    - 메시지 발행과 구독하기
    - 카프카 살펴보기
