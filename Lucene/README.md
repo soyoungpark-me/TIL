@@ -14,6 +14,9 @@
 ### 목차
 
 1. [**루씬의 이해**](https://github.com/3457soso/TIL/blob/master/Lucene/01_Intro.md)
+   - 루씬이란
+   - 루씬이 제공하는 두 가지 핵심 기능
+   - 핵심 클래스 리뷰
 2. [**텍스트 색인**](https://github.com/3457soso/TIL/blob/master/Lucene/02_index.md)
 3. [**텍스트 분석**](https://github.com/3457soso/TIL/blob/master/Lucene/03_analyze.md)
 4. [**텍스트 검색과 질의 방법**](https://github.com/3457soso/TIL/blob/master/Lucene/04_query.md)
