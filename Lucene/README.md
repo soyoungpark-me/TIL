@@ -41,6 +41,13 @@
 
 4. [**텍스트 검색과 질의 방법**](https://github.com/3457soso/TIL/blob/master/Lucene/04_query.md)
 
+   - 전문 검색의 이해
+   - IndexReader와 IndexSearcher
+   - Query와 QueryParser
+   - 다양한 검색 Query
+
+   <br>
+
 5. [**루씬의 검색 핵심**](https://github.com/3457soso/TIL/blob/master/Lucene/05_core.md)
 
 6. [**루씬 동작 방식 이해하기**](https://github.com/3457soso/TIL/blob/master/Lucene/06_inside.md)
