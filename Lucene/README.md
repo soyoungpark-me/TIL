@@ -17,16 +17,34 @@
    - 루씬이란
    - 루씬이 제공하는 두 가지 핵심 기능
    - 핵심 클래스 리뷰
+
+   <br>
+
 2. [**텍스트 색인**](https://github.com/3457soso/TIL/blob/master/Lucene/02_index.md)
+
    - 색인 이해하기
    - IndexWriter
    - 도큐먼트와 필드
    - 다양한 데이터 타입 필드
    - DocValues
+
+   <br>
+
 3. [**텍스트 분석**](https://github.com/3457soso/TIL/blob/master/Lucene/03_analyze.md)
+
+   - 분석기 이해
+   - 문장을 음절로 분석하기
+   - 루씬의 기본 분석기
+   - 확장 분석기
+
+   <br>
+
 4. [**텍스트 검색과 질의 방법**](https://github.com/3457soso/TIL/blob/master/Lucene/04_query.md)
+
 5. [**루씬의 검색 핵심**](https://github.com/3457soso/TIL/blob/master/Lucene/05_core.md)
+
 6. [**루씬 동작 방식 이해하기**](https://github.com/3457soso/TIL/blob/master/Lucene/06_inside.md)
+
 7. [**다양한 확장 기능**](https://github.com/3457soso/TIL/blob/master/Lucene/07_extensions.md)
 
 
