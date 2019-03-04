@@ -60,6 +60,12 @@
 
 6. [**루씬 동작 방식 이해하기**](https://github.com/3457soso/TIL/blob/master/Lucene/06_inside.md)
 
+   - 세그먼트
+   - 색인과 동시성
+   - 순위 점수 계산 모델
+
+   <br>
+
 7. [**다양한 확장 기능**](https://github.com/3457soso/TIL/blob/master/Lucene/07_extensions.md)
 
 
