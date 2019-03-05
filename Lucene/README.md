@@ -48,7 +48,15 @@
 
    <br>
 
-5. [**루씬의 검색 핵심**](https://github.com/3457soso/TIL/blob/master/Lucene/05_core.md)
+5. [**루씬의 고급 검색**](https://github.com/3457soso/TIL/blob/master/Lucene/05_core.md)
+
+   - 검색 결과 정렬
+   - 검색 필터링
+   - 다중 색인 검색
+   - 텀 벡터
+   - 검색 결과의 점수 계산법
+
+   <br>
 
 6. [**루씬 동작 방식 이해하기**](https://github.com/3457soso/TIL/blob/master/Lucene/06_inside.md)
 

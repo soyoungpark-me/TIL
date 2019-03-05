@@ -12,7 +12,7 @@
    - [**루씬의 기본 분석기**](#3-루씬의-기본-분석기)
    - [**확장 분석기**](#4-확장-분석기)
 4. [텍스트 검색과 질의 방법](https://github.com/3457soso/TIL/blob/master/Lucene/04_query.md)
-5. [루씬의 검색 핵심](https://github.com/3457soso/TIL/blob/master/Lucene/05_core.md)
+5. [루씬의 고급 검색](https://github.com/3457soso/TIL/blob/master/Lucene/05_core.md)
 6. [루씬 동작 방식 이해하기](https://github.com/3457soso/TIL/blob/master/Lucene/06_inside.md)
 7. [다양한 확장 기능](https://github.com/3457soso/TIL/blob/master/Lucene/07_extensions.md)
 

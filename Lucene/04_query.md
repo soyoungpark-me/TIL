@@ -12,7 +12,7 @@
    - [**IndexReader와 IndexSearcher**](#2-indexreader와-indexsearcher)
    - [**Query와 QueryParser**](#3-query와-queryparser)
    - [**다양한 검색 Query**](#4-다양한-검색-query)
-5. [루씬의 검색 핵심](https://github.com/3457soso/TIL/blob/master/Lucene/05_core.md)
+5. [루씬의 고급 검색](https://github.com/3457soso/TIL/blob/master/Lucene/05_core.md)
 6. [루씬 동작 방식 이해하기](https://github.com/3457soso/TIL/blob/master/Lucene/06_inside.md)
 7. [다양한 확장 기능](https://github.com/3457soso/TIL/blob/master/Lucene/07_extensions.md)
 
