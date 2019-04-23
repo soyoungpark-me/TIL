@@ -52,5 +52,5 @@ ___
 
 - #### [**읽기 좋은 코드가 좋은 코드다**](https://github.com/3457soso/TIL/blob/master/Books/The_Art_of_Readable_Code.md)
 
-- #### [**이펙티브 자바 2판**]()
+- #### [**이펙티브 자바 2판**](https://github.com/3457soso/TIL/blob/master/Books/Effective_Java.md)
 
