@@ -8,43 +8,43 @@
 
 ___
 
+## Programming Language
+
+#### 1. [JAVA](https://github.com/3457soso/TIL/blob/master/Books/Effective_Java.md)
+
+#### 2. Kotlin
+
+#### 3. JavaScript
+
+#### 4. [TypeScript](https://github.com/3457soso/TIL/tree/master/TypeScript)
+
+___
+
 ## Web Development 
 
+#### 5. [Spring Boot](https://github.com/3457soso/study-spring-framework)
 
-#### 1. React.js 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/React.js)
-
-
-#### 2. Node.js 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/Node.js)
+#### 6. [React.js](https://github.com/3457soso/TIL/tree/master/React.js)
 
 
-#### 3. TypeScript 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/TypeScript)
+#### 7. [Node.js](https://github.com/3457soso/TIL/tree/master/Node.js)
 
 
-#### 4. GraphQL 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/GraphQL)
+#### [8. GraphQL](https://github.com/3457soso/TIL/tree/master/GraphQL)
 
 ___
 
-## Message Queue + Search
+## Data Engineering
 
 
-#### 5. RabbitMQ 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/RabbitMQ)
+#### 9. [RabbitMQ](https://github.com/3457soso/TIL/tree/master/RabbitMQ)
 
 
-#### 6. Kafka 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/Kafka)
+#### 10. [Kafka](https://github.com/3457soso/TIL/tree/master/Kafka)
 
-#### 7. Lucene 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/Lucene)
+#### 11. [Lucene](https://github.com/3457soso/TIL/tree/master/Lucene)
 
-#### 8. ELK Stack 👉 [**Link**](https://github.com/3457soso/TIL/tree/master/ElasticSearch)
-
-___
-
-## ETC
-
-
-#### 8. Android :point_right: [**Link**](https://github.com/3457soso/TIL/tree/master/Android)
-
-
-#### +) Notes 👉 [**Link**](https://github.com/3457soso/study-spring-framework/tree/master/4_intelliJ-intro)
+#### 12. [ELK Stack](https://github.com/3457soso/TIL/tree/master/ElasticSearch)
 
 ___
 
@@ -52,5 +52,4 @@ ___
 
 - #### [**읽기 좋은 코드가 좋은 코드다**](https://github.com/3457soso/TIL/blob/master/Books/The_Art_of_Readable_Code.md)
 
-- #### [**이펙티브 자바 2판**](https://github.com/3457soso/TIL/blob/master/Books/Effective_Java.md)
 
