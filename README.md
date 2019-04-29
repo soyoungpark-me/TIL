@@ -12,7 +12,7 @@ ___
 
 #### 1. [JAVA](https://github.com/3457soso/TIL/blob/master/Books/Effective_Java.md)
 
-#### 2. Kotlin
+#### 2. [Kotlin](https://github.com/3457soso/TIL/tree/master/Kotlin)
 
 #### 3. JavaScript
 
@@ -30,7 +30,7 @@ ___
 #### 7. [Node.js](https://github.com/3457soso/TIL/tree/master/Node.js)
 
 
-#### [8. GraphQL](https://github.com/3457soso/TIL/tree/master/GraphQL)
+#### 8. [GraphQL](https://github.com/3457soso/TIL/tree/master/GraphQL)
 
 ___
 
