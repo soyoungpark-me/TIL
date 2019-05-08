@@ -69,47 +69,57 @@ ___
 
 ## 2. 표면적 수준에서의 개선
 
-- **표면적 수준** : 좋은 이름을 짓고, 좋은 설명을 달고, 코드를 보기 좋게 정렬하는 것들
+### 1) 표면적 수준
 
-  - 이러한 수정은 반영하기 쉽고, 많은 시간을 투자할 필요가 없다.
+- 좋은 이름을 짓고, 좋은 설명을 달고, 코드를 보기 좋게 정렬하는 것들
 
-- **이름에 정보 담기**
+- 이러한 수정은 반영하기 쉽고, 많은 시간을 투자할 필요가 없다.
 
-  - **특정한 단어 고르기** : 매우 *구체적인* 단어를 선택해 *무의미한* 단어 피하기!
+####  
 
-    ```java
-    def getPage(url): 	// 어디서 가져오는건지 명확하지 않음
-    
-    class BinaryTree {
-        int size();		// 무엇을 반환하는 건지 알 수 없음
-    }
-    
-    class Thread {
-        void Stop();	// 정확히 무엇을 수행하는지 알 수 없음
-    }
-    ```
+### 2) 이름에 정보 담기
 
-  - **더 화려한 단어 고르기** : 상황에 더 적합할 수 있는 단어를 고르자
+- **특정한 단어 고르기** : 매우 *구체적인* 단어를 선택해 *무의미한* 단어 피하기!
 
-    | 단어  | 대안                                              |
-    | ----- | ------------------------------------------------- |
-    | send  | deliver, dispatch, announce, distribute, route    |
-    | find  | search, extract, locate, recover                  |
-    | start | launch, create, begin, open                       |
-    | make  | create, setUp, build, generate, compose, add, new |
+  ```java
+  def getPage(url): 	// 어디서 가져오는건지 명확하지 않음
+  
+  class BinaryTree {
+      int size();		// 무엇을 반환하는 건지 알 수 없음
+  }
+  
+  class Thread {
+      void Stop();	// 정확히 무엇을 수행하는지 알 수 없음
+  }
+  ```
 
-    - 화려한 단어가 꼭 좋은 것만은 아님에 주의하자
+  
 
-  - **보편적인 이름 피하기** : `tmp`, `retval`, `foo` 같은 이름들 말고... 개체의 *값이나 목적*을 정확하게 설명하자
+- **더 화려한 단어 고르기** : 상황에 더 적합할 수 있는 단어를 고르자
 
-    - 보편적인 이름을 사용하려면, **꼭 그렇게 해야 하는 이유가 있어야 한다**
+  | 단어  | 대안                                              |
+  | ----- | ------------------------------------------------- |
+  | send  | deliver, dispatch, announce, distribute, route    |
+  | find  | search, extract, locate, recover                  |
+  | start | launch, create, begin, open                       |
+  | make  | create, setUp, build, generate, compose, add, new |
 
-  - **추가적인 정보를 이름에 포함하기** : 단위/중요한 속성 등의 정보를 포함시키자
+  - 화려한 단어가 꼭 좋은 것만은 아님에 주의하자
 
-  - 이름이 지나치게 길면 안된다! 
+- **보편적인 이름 피하기** : `tmp`, `retval`, `foo` 같은 이름들 말고... 개체의 *값이나 목적*을 정확하게 설명하자
 
-    - `newNavigationControllerWrappingViewControllerForDataSourceOfClass`
-    - 보기만 해도 기억하기 어렵고... 화면도 너무 많이 차지함...
-    - **좁은 범위에서는 짧은 이름이 괜찮다** : 좁은 범위면 많은 정보를 담을 필요가 없다.
+  - 보편적인 이름을 사용하려면, **꼭 그렇게 해야 하는 이유가 있어야 한다**
 
-    
+- **추가적인 정보를 이름에 포함하기** : 단위/중요한 속성 등의 정보를 포함시키자
+
+- 이름이 지나치게 길면 안된다! 
+
+  - `newNavigationControllerWrappingViewControllerForDataSourceOfClass`
+  - 보기만 해도 기억하기 어렵고... 화면도 너무 많이 차지함...
+  - **좁은 범위에서는 짧은 이름이 괜찮다** : 좁은 범위면 많은 정보를 담을 필요가 없다.
+
+####  
+
+### 3) 오해할 수 없는 이름들
+
+- 
