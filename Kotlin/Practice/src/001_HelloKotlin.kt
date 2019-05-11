@@ -10,6 +10,7 @@
  * 2. 변수의 타입을 맨 끝에 적는다
  * 3. 세미콜론을 적지 않는다.
  */
-fun main(args: Array<String>): Unit{
+fun main(args: Array<String>): Unit
+{
     println("Hello, Kotlin!")
 }
