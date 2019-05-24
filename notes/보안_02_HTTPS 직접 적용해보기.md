@@ -21,7 +21,7 @@
 
 ### 발급받은 인증서 적용하기
 
-- 해당 인증서의 위치를 **```nginx```**에  적용한다.
+- 해당 인증서의 위치를 `nginx`에  적용한다.
 
 - ```sudo nano /etc/nginx/sites-enabled/default``` 설정 파일을 열어서
 
