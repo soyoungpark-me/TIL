@@ -11,8 +11,8 @@ public class Inventory {
         this.guitars = new LinkedList();
     }
 
-    public void addGuitar(String serialNumber, double price, Builder builder, String model, Type type, Wood backWood, Wood topWood) {
-        Guitar guitar = new Guitar(serialNumber, price, builder, model, type, backWood, topWood);
+    public void addGuitar(String serialNumber, double price, String model, Builder builder, Type type, Wood backWood, Wood topWood) {
+        Guitar guitar = new Guitar(serialNumber, price, new GuitarSpec(model, builder, type, backWood, topWood));
 
         this.guitars.add(guitar);
     }
@@ -23,24 +23,24 @@ public class Inventory {
         for (Iterator i = this.guitars.iterator(); i.hasNext();) {
             Guitar guitar = (Guitar) i.next();
 
-            if (searchGuitar.getBuilder() != guitar.getBuilder()) {
+            if (searchSpec.getBuilder() != guitar.getSpec().getBuilder()) {
                 continue;
             }
 
-            String model = searchGuitar.getModel();
-            if ((model != null) && (!model.equals("")) && (!model.equals(guitar.getModel()))) {
+            String model = searchSpec.getModel();
+            if ((model != null) && (!model.equals("")) && (!model.equals(guitar.getSpec().getModel()))) {
                 continue;
             }
 
-            if (searchGuitar.getType() != guitar.getType()) {
+            if (searchSpec.getType() != guitar.getSpec().getType()) {
                 continue;
             }
 
-            if (searchGuitar.getBackWood() != guitar.getBackWood()) {
+            if (searchSpec.getBackWood() != guitar.getSpec().getBackWood()) {
                 continue;
             }
 
-            if (searchGuitar.getTopWood() != guitar.getTopWood()) {
+            if (searchSpec.getTopWood() != guitar.getSpec().getTopWood()) {
                 continue;
             }
 

@@ -6,9 +6,10 @@ public class Guitar {
     /* guitarSpec 참조 */
     private GuitarSpec spec;
 
-    public Guitar(String serialNumber, double price) {
+    public Guitar(String serialNumber, double price, GuitarSpec spec) {
         this.serialNumber = serialNumber;
         this.price = price;
+        this.spec = spec;
     }
 
     public String getSerialNumber() {
