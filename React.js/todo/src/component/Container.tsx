@@ -9,7 +9,7 @@ enum Label {
 }
 
 export interface todo {
-  index?: number
+  index: number
   text: string
   checked: boolean
   labal?: Label
@@ -33,12 +33,21 @@ const Container = () => {
       checked: false
     }
     setTodoList([...todoList, newTodo])
+    console.log(todoList)
+  }
+
+  const checkTodo = (index: number) => {
+    const items: todo[] = todoList
+    const checkedValue: boolean = items[index].checked
+    items[index].checked = !checkedValue
+
+    setTodoList(items)
   }
 
   return (
     <TodoContext.Provider value={{ todoList }}>
-      <Header addNewTodo={addNewTodo}/>
-      <Todo />
+      <Header addNewTodo={addNewTodo} />
+      <Todo checkTodo={checkTodo} />
     </TodoContext.Provider>
   )
 }
