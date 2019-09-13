@@ -1,9 +1,7 @@
 @import '~antd/dist/antd.css';
 
 .App {
-  width: 700px;
-  padding: 20px 0;
-  margin: 0 auto;
+  height: 100%;
 }
 
 @keyframes App-logo-spin {

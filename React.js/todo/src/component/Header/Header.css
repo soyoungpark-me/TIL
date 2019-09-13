@@ -3,17 +3,21 @@
 .Header-wrapper {
   color: #FEFEFE;
   width: 100%;
-  min-height: 180px;
+  height: 140px;
+  margin: 45px 0 25px 0;
   position: relative;
 }
 
 .Header-title {
-  font-family: 'Sunflower', sans-serif !important;
-  font-size: 45px;
+  font-family: 'Luckiest Guy', sans-serif !important;
+  font-size: 55px;
   font-weight: 900;
-  color: #FEFEFE;
+  color: #F06124;
+  /* color: #FFDB06; */
+  -webkit-text-stroke: 0.1px #123123;
+  letter-spacing: 2px;
   text-align: center;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
 }
 
 .Header-input-wrapper {
@@ -33,35 +37,39 @@
 .Header-input {
   height: 50px !important;
   font-size: 17px;
+  padding: 15px;
   width: 400px;
   border-radius: 5px 0 0 5px !important;
+  border: 1.1px solid #123123;
   border-right: none !important;
   position: absolute;
 }
 
 .ant-input:focus, .ant-input:hover {
-  border-color: #E17F93 !important;
-  -webkit-box-shadow: 0 0 0 2px rgba(225, 127, 146, 0.2);
-  box-shadow: 0 0 0 2px rgba(225, 127, 146, 0.2);
+  border-color: #F06124 !important;
+  /* -webkit-box-shadow: 0 0 0 2px rgba(225, 127, 146, 0.2); */
+  -webkit-box-shadow: none;
+  box-shadow: none;
 }
 
 .Header-button {
   font-family: 'Sunflower', sans-serif !important;
   font-weight: 900;
-  color: #FEFEFE;
+  background-color: #FFDB06;
+  color: #123123;
   width: 100px;
   height: 50px;
   border-radius: 0 5px 5px 0 !important;
-  border-left: none !important;
+  border: 1px solid #123123;
   position: absolute;
   right: 0;
 }
 
-/* .ant-btn:focus, .ant-btn:hover {
-  background: #FEFEFE;
-  color: #E17F93;
-  border-color: #E17F93;
-  -webkit-box-shadow: 0 0 0 2px rgba(225, 127, 146, 0.2);
-  box-shadow: 0 0 0 2px rgba(225, 127, 146, 0.2);
-  border-left: none !important;
-} */
+.ant-btn:focus, .ant-btn:hover {
+  background: #F06124;
+  /* color: #E17F93; */
+  color: #FFFFFF;
+  border-color: #123123;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
