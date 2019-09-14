@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react'
+import React, { useState } from 'react'
 
 import Header from './Header'
 import Todo from './Todo'
@@ -27,21 +27,26 @@ const Container = () => {
   const [todoList, setTodoList] = useState<todo[]>([])
 
   const addNewTodo = (text: string) => {
+    if (text === null || text.length === 0) return
+
     const newTodo: todo = {
       index: todoList.length,
       text,
       checked: false
     }
     setTodoList([...todoList, newTodo])
-    console.log(todoList)
   }
 
   const checkTodo = (index: number) => {
-    const items: todo[] = todoList
-    const checkedValue: boolean = items[index].checked
-    items[index].checked = !checkedValue
+    const target = todoList[index]
+    const checkedValue: boolean = target.checked
+    target.checked = !checkedValue
 
-    setTodoList(items)
+    setTodoList([
+      ...todoList.slice(0, index),
+      target,
+      ...todoList.slice(index + 1)
+    ])
   }
 
   return (
