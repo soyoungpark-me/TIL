@@ -49,10 +49,18 @@ const Container = () => {
     ])
   }
 
+  const removeTodo = (index: number) => {
+    const afterList = todoList.slice(index + 1)
+    afterList.map((item) => { item.index-- })
+    const newTodoList = todoList.slice(0, index).concat(afterList)
+    
+    setTodoList(newTodoList)
+  }
+
   return (
     <TodoContext.Provider value={{ todoList }}>
       <Header addNewTodo={addNewTodo} />
-      <Todo checkTodo={checkTodo} />
+      <Todo checkTodo={checkTodo} removeTodo={removeTodo} />
     </TodoContext.Provider>
   )
 }

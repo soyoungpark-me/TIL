@@ -7,12 +7,13 @@ import './Todo.css'
 
 interface Props {
   checkTodo: Function
+  removeTodo: Function
 }
 
 const Todo = (props: Props) => {
   const todoList = useContext(TodoContext).todoList
 
-  const { checkTodo } = props
+  const { checkTodo, removeTodo } = props
 
   return (
     <>
@@ -22,7 +23,7 @@ const Todo = (props: Props) => {
         <div className="Todo-list-wrapper">
           <Row gutter={24}>
             {todoList && todoList.map(item => (
-              <Item key={`item-${item.index}`} item={item} checkTodo={checkTodo}/>
+              <Item key={`item-${item.index}`} item={item} checkTodo={checkTodo} removeTodo={removeTodo} />
             ))}
           </Row>
         </div>
