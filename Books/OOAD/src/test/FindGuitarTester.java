@@ -1,3 +1,10 @@
+import guitar.Guitar;
+import guitar.GuitarSpec;
+import guitar.Inventory;
+import guitar.enumeration.Builder;
+import guitar.enumeration.Type;
+import guitar.enumeration.Wood;
+
 import java.util.Iterator;
 import java.util.List;
 

@@ -1,3 +1,5 @@
+package guitar;
+
 public class Guitar {
 
     private String serialNumber;

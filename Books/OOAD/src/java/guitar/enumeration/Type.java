@@ -1,3 +1,5 @@
+package guitar.enumeration;
+
 public enum Type {
 
     ACOUSTIC, ELECTIC;

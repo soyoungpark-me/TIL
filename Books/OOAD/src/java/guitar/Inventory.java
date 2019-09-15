@@ -1,3 +1,9 @@
+package guitar;
+
+import guitar.enumeration.Builder;
+import guitar.enumeration.Type;
+import guitar.enumeration.Wood;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;

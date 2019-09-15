@@ -1,3 +1,5 @@
+package guitar.enumeration;
+
 public enum Builder {
 
     FENDER, MARTIN;

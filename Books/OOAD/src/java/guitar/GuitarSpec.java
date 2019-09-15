@@ -1,3 +1,9 @@
+package guitar;
+
+import guitar.enumeration.Builder;
+import guitar.enumeration.Type;
+import guitar.enumeration.Wood;
+
 public class GuitarSpec {
 
     private String model, numStrings;
