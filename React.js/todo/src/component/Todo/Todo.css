@@ -29,8 +29,13 @@
   width: 500px;
   border-radius: 5px; 
   border: 1px solid #123123;
-  box-shadow: 0 22px 50px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 22px 50px 4px rgba(0, 0, 0, 0.05);
   margin: 0 auto 25px auto;
+}
+
+.Item-card:hover {
+  border: 1px solid #03BCD0;
+  box-shadow: 0 22px 50px 4px rgba(185, 97, 42, 0.05);
 }
 
 .Item-checked {
