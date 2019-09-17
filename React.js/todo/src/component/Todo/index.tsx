@@ -5,17 +5,8 @@ import { TodoContext } from './../Container'
 import Item from './Item'
 import './Todo.css'
 
-/*
-interface Props {
-  checkTodo: Function
-  removeTodo: Function
-}
-*/
-
-const Todo = (/*props: Props*/) => {
-  const todoList = useContext(TodoContext).todoList
-
-  // const { checkTodo, removeTodo } = props
+const Todo = () => {
+  const { todoList } = useContext(TodoContext)
 
   return (
     <>

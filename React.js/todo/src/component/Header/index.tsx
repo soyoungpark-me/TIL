@@ -14,7 +14,7 @@ const todayString = `${today.getFullYear()}.${today.getMonth() + 1}.${today.getD
 const Header = () => {
   const context = useContext(TodoContext)
   const [text, setText] = useState<string>("")
-  const addTodo = useCallback(() => context.dispatch({ type: ADD_TODO, text }), [text])
+  const addTodo = useCallback(() => { context.dispatch({ type: ADD_TODO, text }); setText("") }, [text])
 
   return (
     <>
