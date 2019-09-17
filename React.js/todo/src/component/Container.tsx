@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useReducer } from 'react'
 
 import Header from './Header'
 import Todo from './Todo'
@@ -17,15 +17,46 @@ export interface todo {
 
 interface TodoContextInterfece {
   todoList: todo[]
+  dispatch: any
 }
 
 export const TodoContext = React.createContext<TodoContextInterfece>({
-  todoList: []
+  todoList: [],
+  dispatch: null
 });
 
-const Container = () => {
-  const [todoList, setTodoList] = useState<todo[]>([])
+export const ADD_TODO = 'ADD_TODO'
+export const CHECK_TODO = 'CHECK_TODO'
+export const REMOVE_TODO = 'REMOVE_TODO'
 
+type State = {
+  todoList: todo[]
+}
+
+type Action = 
+  | { type: 'ADD_TODO'; text: string}
+  | { type: 'CHECK_TODO'; index: number }
+  | { type: 'REMOVE_TODO'; index: number }
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case ADD_TODO:
+      if ( action.text == null || action.text.length === 0) return state
+      const newTodo: todo = {
+        index: state.todoList.length,
+        text: action.text,
+        checked: false
+      }
+      return { todoList: [...state.todoList, newTodo] }
+    default:
+      return state
+  }
+}
+const Container = () => {
+  // const [todoList, setTodoList] = useState<todo[]>([])
+  const [state, dispatch] = useReducer(reducer, { todoList: [] });
+
+  /*
   const addNewTodo = (text: string) => {
     if (text === null || text.length === 0) return
 
@@ -56,11 +87,12 @@ const Container = () => {
     
     setTodoList(newTodoList)
   }
+  */
 
   return (
-    <TodoContext.Provider value={{ todoList }}>
-      <Header addNewTodo={addNewTodo} />
-      <Todo checkTodo={checkTodo} removeTodo={removeTodo} />
+    <TodoContext.Provider value={{ todoList: state.todoList, dispatch }}>
+      <Header />
+      <Todo />
     </TodoContext.Provider>
   )
 }

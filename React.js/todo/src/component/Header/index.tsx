@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useContext, useCallback } from 'react'
 import { Input, Button, Icon } from 'antd'
 
+import { TodoContext, ADD_TODO } from './../Container'
 import './Header.css';
 
 enum Day {
@@ -10,12 +11,10 @@ enum Day {
 const today = new Date()
 const todayString = `${today.getFullYear()}.${today.getMonth() + 1}.${today.getDate()} ${Day[today.getDay()]}`
 
-interface Props {
-  addNewTodo: Function
-}
-
-const Header = (props: Props) => {
+const Header = () => {
+  const context = useContext(TodoContext)
   const [text, setText] = useState<string>("")
+  const addTodo = useCallback(() => context.dispatch({ type: ADD_TODO, text }), [text])
 
   return (
     <>
@@ -25,7 +24,7 @@ const Header = (props: Props) => {
         </h1>
         <div className="Header-input-wrapper">
           <Input className="Header-input" value={text} onChange={e => setText(e.target.value)} />
-          <Button className="Header-button" size="large" onClick={() => { props.addNewTodo(text); setText("")} }>
+          <Button className="Header-button" size="large" onClick={addTodo/* () => { props.addNewTodo(text); setText("")} */}>
             <Icon type="plus" />ADD
           </Button>
         </div>
