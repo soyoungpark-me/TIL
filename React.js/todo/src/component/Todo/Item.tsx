@@ -1,11 +1,12 @@
 import React, { useContext, useCallback } from 'react'
 import { Col, Card, Checkbox, Button } from 'antd'
 
-import { TodoContext, todo, CHECK_TODO, REMOVE_TODO } from './../Container'
+import { Todo, TodoContext } from './../../Store'
+import { CHECK_TODO, REMOVE_TODO } from './../../Store/reducer'
 import './Todo.css'
 
 interface Props {
-  item: todo
+  item: Todo
 }
 
 const Item = (props: Props) => {

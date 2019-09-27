@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { Row } from 'antd'
 
-import { TodoContext } from './../Container'
+import { TodoContext } from './../../Store'
 import Item from './Item'
 import './Todo.css'
 

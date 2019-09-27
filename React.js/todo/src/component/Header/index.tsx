@@ -1,7 +1,8 @@
 import React, { useState, useContext, useCallback } from 'react'
 import { Input, Button, Icon } from 'antd'
 
-import { TodoContext, ADD_TODO } from './../Container'
+import { TodoContext } from './../../Store'
+import { ADD_TODO } from './../../Store/reducer'
 import './Header.css';
 
 enum Day {
